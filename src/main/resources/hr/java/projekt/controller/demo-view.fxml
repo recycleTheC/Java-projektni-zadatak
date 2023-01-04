@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.java.projekt.controller.DemoController">
+   <children>
+      <Text layoutX="166.0" layoutY="159.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Testni tab radi" />
+      <Text fx:id="textField" layoutX="212.0" layoutY="205.0" strokeType="OUTSIDE" strokeWidth="0.0" text="varijabla" />
+      <Button layoutX="216.0" layoutY="233.0" mnemonicParsing="false" onAction="#initialize" text="Button" />
+   </children>
+</AnchorPane>

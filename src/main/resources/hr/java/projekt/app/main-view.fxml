@@ -10,9 +10,10 @@
    <children>
       <MenuBar layoutY="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="Osnovni podatci">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#showTestView" text="Test view" />
+              <MenuItem mnemonicParsing="false" onAction="#showTestView" text="Demo" />
+                  <MenuItem mnemonicParsing="false" onAction="#showOsnovniPodatciView" text="Tvrtka" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">

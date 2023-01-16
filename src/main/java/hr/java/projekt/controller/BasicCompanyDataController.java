@@ -1,19 +1,22 @@
 package hr.java.projekt.controller;
 
-import hr.java.projekt.model.tvrtka.OsnovniPodatciTvrtke;
-import hr.java.projekt.util.files.OsnovniPodatciTvrtkeFile;
+import hr.java.projekt.model.company.BasicCompanyData;
+import hr.java.projekt.util.files.BasicCompanyDataFile;
 import hr.java.projekt.util.validation.iban.IBANValidationException;
 import hr.java.projekt.util.validation.iban.IBANValidator;
 import hr.java.projekt.util.validation.oib.OIBValidationException;
 import hr.java.projekt.util.validation.oib.OIBValidator;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 import java.io.IOException;
+import java.util.List;
 
-public class OsnovniPodatciController {
+public class BasicCompanyDataController {
     @FXML
     private TextField nazivField;
     @FXML
@@ -26,18 +29,23 @@ public class OsnovniPodatciController {
     private TextField ibanField;
     @FXML
     private TextArea ispisPodatciField;
+    @FXML
+    private ChoiceBox<String> uSustavuPDVaBox;
 
-    OsnovniPodatciTvrtke tvrtka;
+    BasicCompanyData tvrtka;
 
     public void initialize() throws IOException {
-        tvrtka = OsnovniPodatciTvrtkeFile.reader();
+        tvrtka = BasicCompanyDataFile.read();
 
-        nazivField.setText(tvrtka.getNaziv());
-        adresaField.setText(tvrtka.getAdresa());
-        postanskiBrojMjestoField.setText(tvrtka.getMjestoPostanskiBroj());
+        nazivField.setText(tvrtka.getName());
+        adresaField.setText(tvrtka.getAddress());
+        postanskiBrojMjestoField.setText(tvrtka.getPostalCodeAndTown());
         oibField.setText(tvrtka.getOIB());
         ibanField.setText(tvrtka.getIBAN());
-        ispisPodatciField.setText(tvrtka.getOpis());
+        ispisPodatciField.setText(tvrtka.getDescription());
+
+        uSustavuPDVaBox.setItems(FXCollections.observableList(List.of("da", "ne")));
+        uSustavuPDVaBox.setValue(tvrtka.getRegisteredForVAT() ? "da" : "ne");
 
         oibField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
             if(unfocused){
@@ -95,7 +103,7 @@ public class OsnovniPodatciController {
         String oib = oibField.getText();
         String opis = ispisPodatciField.getText();
 
-        Boolean spremiPodatke = true, uspjeh = false;
+        boolean spremiPodatke = true, uspjeh;
         String ispisPogreske = "";
 
         if(naziv.isBlank()) {
@@ -124,20 +132,20 @@ public class OsnovniPodatciController {
         }
 
         if(spremiPodatke){
-            tvrtka = new OsnovniPodatciTvrtke(naziv, adresa, postanskiBrojMjesto);
-            tvrtka.setOpis(opis);
+            tvrtka = new BasicCompanyData(naziv, adresa, postanskiBrojMjesto);
+            tvrtka.setDescription(opis);
+            tvrtka.setRegisteredForVAT(uSustavuPDVaBox.getValue().compareTo("da") == 0);
             try {
                 tvrtka.setOIB(oib);
                 tvrtka.setIBAN(iban);
 
-                OsnovniPodatciTvrtkeFile.writer(tvrtka);
+                BasicCompanyDataFile.write(tvrtka);
+                uspjeh = true;
             }
             catch (IBANValidationException | OIBValidationException | IOException e){
                 System.out.println(e.getMessage());
                 uspjeh = false;
             }
-
-            uspjeh = true;
         }
         else {
             Alert alert = new Alert(Alert.AlertType.ERROR);

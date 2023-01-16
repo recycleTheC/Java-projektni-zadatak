@@ -1,16 +1,15 @@
 package hr.java.projekt.app;
 
+import hr.java.projekt.controller.ArticleEditorController;
 import hr.java.projekt.controller.DemoController;
-import hr.java.projekt.controller.OsnovniPodatciController;
+import hr.java.projekt.controller.BasicCompanyDataController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 
 public class MainController {
     @FXML
@@ -33,10 +32,19 @@ public class MainController {
     }
 
     public void showOsnovniPodatciView() throws IOException {
-        showView("Osnovni podatci o tvrtki", OsnovniPodatciController.class.getResource("osnovni-podatci-view.fxml"));
+        showView("Osnovni podatci o tvrtki", BasicCompanyDataController.class.getResource("osnovni-podatci-view.fxml"));
     }
 
     public void showTestView() throws IOException {
         showView("Testni View", DemoController.class.getResource("demo-view.fxml"));
+    }
+    /*public void showArticlesView() throws IOException {
+        URL url = ArticleSelectionDialog.class.getResource("article-selection-dialog.fxml");
+        Optional<Article> article = SelectionDialog.showDialog("Artikli", "Odabir artikla", url);
+        System.out.println(article.get().toString());
+    }*/
+
+    public void showArticlesView() throws IOException {
+        showView("Artikli", ArticleEditorController.class.getResource("article-editor.fxml"));
     }
 }

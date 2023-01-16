@@ -14,6 +14,7 @@
             <items>
               <MenuItem mnemonicParsing="false" onAction="#showTestView" text="Demo" />
                   <MenuItem mnemonicParsing="false" onAction="#showOsnovniPodatciView" text="Tvrtka" />
+                  <MenuItem mnemonicParsing="false" onAction="#showArticlesView" text="Artikli" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">

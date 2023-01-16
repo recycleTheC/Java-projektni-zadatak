@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+
+<GridPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.java.projekt.controller.ArticleSelectionDialog">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <TableView fx:id="articleTableView" prefHeight="282.0" prefWidth="450.0">
+        <columns>
+          <TableColumn fx:id="codeColumn" prefWidth="75.0" text="Šifra" />
+          <TableColumn fx:id="nameColumn" prefWidth="120.0" text="Naziv" />
+          <TableColumn fx:id="measureColumn" prefWidth="75.0" text="Mjerna jedinica" />
+          <TableColumn fx:id="priceColumn" prefWidth="90.0" text="Cijena" />
+          <TableColumn fx:id="priceVATColumn" prefWidth="90.0" text="Cijena (PDV)" />
+        </columns>
+      </TableView>
+   </children>
+</GridPane>

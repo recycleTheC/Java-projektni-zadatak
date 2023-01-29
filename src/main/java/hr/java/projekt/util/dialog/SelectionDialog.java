@@ -1,6 +1,5 @@
 package hr.java.projekt.util.dialog;
 
-import hr.java.projekt.controller.ArticleSelectionDialog;
 import hr.java.projekt.model.Entity;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ButtonBar;
@@ -9,7 +8,6 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.TableView;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Optional;
 
 public class SelectionDialog {
@@ -21,7 +19,7 @@ public class SelectionDialog {
         ButtonType confirmButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(confirmButton, ButtonType.CANCEL);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(ArticleSelectionDialog.class.getResource(fxml));
+        FXMLLoader fxmlLoader = new FXMLLoader(SelectionDialog.class.getResource(fxml));
         dialog.getDialogPane().setContent(fxmlLoader.load());
 
         TableView<Model> tableView = fxmlLoader.<Controller>getController().getSelectedValue();

@@ -4,6 +4,7 @@ import hr.java.projekt.database.ArticleRepository;
 import hr.java.projekt.database.DatabaseException;
 import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.util.dialog.CanReturnTableViewSelection;
+import hr.java.projekt.util.dialog.MessageBox;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -13,7 +14,7 @@ import javafx.scene.control.TableView;
 
 import java.math.BigDecimal;
 
-public final class ArticleSelectionDialog implements CanReturnTableViewSelection<Article> {
+public final class ArticleSelectionDialogController implements CanReturnTableViewSelection<Article> {
     @FXML
     public TableView<Article> articleTableView;
     @FXML
@@ -32,7 +33,7 @@ public final class ArticleSelectionDialog implements CanReturnTableViewSelection
         try {
             articleTableView.setItems(FXCollections.observableList(repository.getMany()));
         } catch (DatabaseException e) {
-            System.out.println(e.getMessage());
+            MessageBox.show("Odabir artikla", "Pogreška", "Nije moguće dohvatiti artikle iz baze podataka!", e);
         }
 
         codeColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getCode()));

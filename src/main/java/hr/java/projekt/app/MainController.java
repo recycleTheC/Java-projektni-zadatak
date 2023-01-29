@@ -1,31 +1,49 @@
 package hr.java.projekt.app;
 
 import hr.java.projekt.controller.ArticleEditorController;
-import hr.java.projekt.controller.DemoController;
 import hr.java.projekt.controller.BasicCompanyDataController;
+import hr.java.projekt.controller.HomeController;
+import hr.java.projekt.controller.CanSetTabTitle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Optional;
 
 public class MainController {
     @FXML
     private TabPane tabPane;
 
-    public void initialize(){
+    public void initialize() throws IOException {
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.SELECTED_TAB);
+        showHome();
     }
 
-    private void showView(String naslov, URL fxml) throws IOException {
+    private void showView(String title, URL fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(fxml);
 
         ScrollPane scrollPane = new ScrollPane(fxmlLoader.load());
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
-        Tab tab = new Tab(naslov, scrollPane);
+        Tab tab = new Tab(title, scrollPane);
+
+        if(fxmlLoader.getController() instanceof CanSetTabTitle controller){
+            controller.storeTabReference(tab);
+        }
+
+        tabPane.getTabs().add(tab);
+        tabPane.getSelectionModel().select(tab);
+    }
+
+    private void showHome() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(HomeController.class.getResource("home.fxml"));
+
+        ScrollPane scrollPane = new ScrollPane(fxmlLoader.load());
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        Tab tab = new Tab("Home", scrollPane);
+        tab.setClosable(false);
 
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
@@ -34,15 +52,6 @@ public class MainController {
     public void showOsnovniPodatciView() throws IOException {
         showView("Osnovni podatci o tvrtki", BasicCompanyDataController.class.getResource("osnovni-podatci-view.fxml"));
     }
-
-    public void showTestView() throws IOException {
-        showView("Testni View", DemoController.class.getResource("demo-view.fxml"));
-    }
-    /*public void showArticlesView() throws IOException {
-        URL url = ArticleSelectionDialog.class.getResource("article-selection-dialog.fxml");
-        Optional<Article> article = SelectionDialog.showDialog("Artikli", "Odabir artikla", url);
-        System.out.println(article.get().toString());
-    }*/
 
     public void showArticlesView() throws IOException {
         showView("Artikli", ArticleEditorController.class.getResource("article-editor.fxml"));

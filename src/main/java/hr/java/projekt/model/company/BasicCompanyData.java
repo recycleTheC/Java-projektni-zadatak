@@ -2,7 +2,9 @@ package hr.java.projekt.model.company;
 
 import hr.java.projekt.model.business.Business;
 
-public class BasicCompanyData extends Business {
+import java.io.Serializable;
+
+public class BasicCompanyData extends Business implements Serializable {
     private String description;
     private Boolean registeredForVAT;
 

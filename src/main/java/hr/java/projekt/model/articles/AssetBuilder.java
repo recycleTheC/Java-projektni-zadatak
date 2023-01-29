@@ -16,6 +16,9 @@ public class AssetBuilder {
         this.id = id;
     }
 
+    public AssetBuilder() {
+    }
+
     public AssetBuilder setCode(String code) {
         this.code = code;
         return this;

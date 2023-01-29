@@ -47,6 +47,9 @@ public class ServiceBuilder {
         this.id = id;
     }
 
+    public ServiceBuilder() {
+    }
+
     public Service build() {
         return new Service(id, code, name, measure, price, taxRate, costOfService);
     }

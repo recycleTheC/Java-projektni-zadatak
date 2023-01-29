@@ -1,8 +1,9 @@
 package hr.java.projekt.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public enum TaxRate {
+public enum TaxRate implements Serializable {
     REGULAR_RATE("redovna stopa", new BigDecimal("0.25")),
     LOWER_RATE("snižena stopa", new BigDecimal("0.13")),
     LOWEST_RATE("najniža stopa", new BigDecimal("0.05")),

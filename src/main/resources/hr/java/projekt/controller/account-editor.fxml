@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<?import hr.java.projekt.javafx.LongNumberTextField?>
+
+<GridPane alignment="CENTER" prefHeight="255.0" minWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.java.projekt.controller.AccountEditorController">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="312.0" minWidth="10.0" prefWidth="265.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="422.0" minWidth="10.0" prefWidth="335.0" />
+  </columnConstraints>
+  <rowConstraints>
+     <RowConstraints maxHeight="80.0" minHeight="10.0" prefHeight="72.0" vgrow="SOMETIMES" />
+     <RowConstraints maxHeight="100.0" minHeight="10.0" prefHeight="62.0" vgrow="SOMETIMES" />
+     <RowConstraints maxHeight="100.0" minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
+     <RowConstraints maxHeight="100.0" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Konto" textAlignment="CENTER" GridPane.halignment="CENTER">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Text>
+      <Button mnemonicParsing="false" onAction="#selectAction" prefHeight="43.0" prefWidth="139.0" text="Pretraga" GridPane.columnIndex="1" GridPane.halignment="CENTER">
+         <font>
+            <Font size="20.0" />
+         </font>
+         <graphic>
+            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../icons/baseline_search_black_24dp.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Šifra" />
+            <LongNumberTextField fx:id="codeField" prefHeight="25.0" prefWidth="246.0">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </LongNumberTextField>
+         </children>
+         <GridPane.margin>
+            <Insets left="5.0" right="5.0" />
+         </GridPane.margin>
+      </VBox>
+      <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Naziv" />
+            <TextField fx:id="nameField">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </TextField>
+         </children>
+         <GridPane.margin>
+            <Insets left="5.0" right="5.0" />
+         </GridPane.margin>
+      </VBox>
+      <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+         <children>
+            <Label text="Analitički tip konta" />
+            <ComboBox fx:id="accountTypeComboBox" prefHeight="25.0" prefWidth="155.0">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </ComboBox>
+         </children>
+         <GridPane.margin>
+            <Insets left="5.0" right="5.0" />
+         </GridPane.margin>
+      </VBox>
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="50" GridPane.columnSpan="2" GridPane.rowIndex="3">
+         <children>
+            <Button mnemonicParsing="false" onAction="#saveAction" style="-fx-base: lightblue;" text="Spremi" />
+            <Button mnemonicParsing="false" onAction="#cancelEdit" text="Odustani" />
+            <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#deleteAction" style="-fx-base: tomato;" text="Obriši" />
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</GridPane>

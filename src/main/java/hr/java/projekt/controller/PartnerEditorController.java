@@ -133,7 +133,7 @@ public final class PartnerEditorController implements CanSetTabTitle {
         }
 
         if(!validationError.isEmpty()){
-            MessageBox.show("Artikl", "Neispravne vrijednosti", validationError.toString(), Alert.AlertType.WARNING);
+            MessageBox.show("Partner", "Neispravne vrijednosti", validationError.toString(), Alert.AlertType.WARNING);
             return;
         }
 

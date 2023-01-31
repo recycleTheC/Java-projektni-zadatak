@@ -55,7 +55,7 @@ public class ArticleEditorController implements CanSetTabTitle {
         savedItem = Optional.empty();
         articleRepository = new ArticleRepository();
         taxRateBox.setItems(FXCollections.observableArrayList(TaxRate.values()));
-        taxRateBox.setConverter(CustomStringConverters.TAX_RATE_STRING_CONVERTER);
+        taxRateBox.setConverter(CustomStringConverters.TaxRateStringConverter);
 
         priceField.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0,Double.MAX_VALUE,0));
         priceVATField.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0,Double.MAX_VALUE,0));
@@ -211,7 +211,7 @@ public class ArticleEditorController implements CanSetTabTitle {
         nameField.setText("");
         measureField.setText("");
         priceField.getValueFactory().setValue((double) 0);
-        taxRateBox.setValue(null);
+        taxRateBox.getSelectionModel().clearSelection();
 
         assetRadio.setSelected(false);
         serviceRadio.setSelected(false);

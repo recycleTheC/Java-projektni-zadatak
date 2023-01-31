@@ -61,4 +61,7 @@ public class MainController {
     public void showPartnersView() throws IOException {
         showView("Partneri", PartnerEditorController.class.getResource("partner-editor.fxml"));
     }
+    public void showAccountsView() throws IOException {
+        showView("Konta", AccountEditorController.class.getResource("account-editor.fxml"));
+    }
 }

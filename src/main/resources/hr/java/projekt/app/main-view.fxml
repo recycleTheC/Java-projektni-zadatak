@@ -15,6 +15,7 @@
                   <MenuItem mnemonicParsing="false" onAction="#showOsnovniPodatciView" text="Tvrtka" />
                   <MenuItem mnemonicParsing="false" onAction="#showArticlesView" text="Artikli" />
                   <MenuItem mnemonicParsing="false" onAction="#showPartnersView" text="Partneri" />
+                  <MenuItem mnemonicParsing="false" onAction="#showAccountsView" text="Konta" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Promjene">

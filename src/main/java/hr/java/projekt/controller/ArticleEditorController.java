@@ -47,7 +47,7 @@ public class ArticleEditorController implements CanSetTabTitle {
     private Button deleteButton;
 
     private ArticleRepository articleRepository;
-    private Optional<Business> savedItem;
+    private Optional<Article> savedItem;
     private Tab tab;
     private static final Logger logger = LoggerFactory.getLogger(ArticleEditorController.class);
     @FXML
@@ -88,7 +88,7 @@ public class ArticleEditorController implements CanSetTabTitle {
         codeField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
             if(unfocused){
                 try {
-                    Optional<Business> article = articleRepository.get(codeField.getText());
+                    Optional<Article> article = articleRepository.get(codeField.getText());
                     article.ifPresent(this::setFields);
                 } catch (DatabaseException e) {
                     logger.error(e.getMessage(), e.getCause());
@@ -114,7 +114,7 @@ public class ArticleEditorController implements CanSetTabTitle {
 
     @FXML
     private void selectArticle() throws IOException {
-        Optional<Business> selection = SelectionDialog.showDialog("Artikl", "Odabir artikla", "article-selection-dialog.fxml");
+        Optional<Article> selection = SelectionDialog.showDialog("Artikl", "Odabir artikla", "article-selection-dialog.fxml");
         selection.ifPresent(this::setFields);
     }
 
@@ -142,10 +142,10 @@ public class ArticleEditorController implements CanSetTabTitle {
         boolean confirmation = ConfirmationDialog.showDialog("Artikl", "Spremanje artikla", "Želite li spremiti artikl '" + code + "'?");
         if(!confirmation) return;
 
-        Business business;
+        Article article;
 
         if(assetRadio.isSelected()){
-            business = new AssetBuilder().setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(rate).build();
+            article = new AssetBuilder().setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(rate).build();
         }
         else {
             ServiceBuilder builder = new ServiceBuilder().setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(rate);
@@ -155,24 +155,24 @@ public class ArticleEditorController implements CanSetTabTitle {
                 builder.setCostOfService(BigDecimal.valueOf(cost));
             }
 
-            business = builder.build();
+            article = builder.build();
         }
 
         try {
             if(savedItem.isPresent()) {
-                articleRepository.update(savedItem.get().getId(), business);
-                new HistoryWriterThread<>(new UpdatedChangeRecord<>(savedItem.get(), business)).start();
+                articleRepository.update(savedItem.get().getId(), article);
+                new HistoryWriterThread<>(new UpdatedChangeRecord<>(savedItem.get(), article)).start();
             }
             else {
-                articleRepository.save(business);
-                new HistoryWriterThread<>(new CreatedChangeRecord<>(business)).start();
+                articleRepository.save(article);
+                new HistoryWriterThread<>(new CreatedChangeRecord<>(article)).start();
             }
 
-            MessageBox.show("Artikl", "Spremanje artikla", "Artikl " + business.getCode() + " uspješno spremljen!");
+            MessageBox.show("Artikl", "Spremanje artikla", "Artikl " + article.getCode() + " uspješno spremljen!");
             resetFields();
         } catch (DatabaseException ex) {
             logger.error(ex.getMessage(), ex.getCause());
-            MessageBox.show("Artikl", "Pogreška u radu s bazom podataka", "Artikl " + business.getCode() + "nije spremljen!", ex);
+            MessageBox.show("Artikl", "Pogreška u radu s bazom podataka", "Artikl " + article.getCode() + "nije spremljen!", ex);
         }
     }
 
@@ -220,24 +220,24 @@ public class ArticleEditorController implements CanSetTabTitle {
         costField.getValueFactory().setValue((double) 0);
     }
 
-    private void setFields(Business business){
-        setTabTitle("Artikl '" + business.getCode() + "'");
-        savedItem = Optional.of(business);
-        codeField.setText(business.getCode());
+    private void setFields(Article article){
+        setTabTitle("Artikl '" + article.getCode() + "'");
+        savedItem = Optional.of(article);
+        codeField.setText(article.getCode());
         codeField.setDisable(true);
         deleteButton.setDisable(false);
 
-        nameField.setText(business.getName());
-        measureField.setText(business.getMeasure());
-        priceField.getValueFactory().setValue(business.getPrice().doubleValue());
-        taxRateBox.getSelectionModel().select(business.getTaxRate());
+        nameField.setText(article.getName());
+        measureField.setText(article.getMeasure());
+        priceField.getValueFactory().setValue(article.getPrice().doubleValue());
+        taxRateBox.getSelectionModel().select(article.getTaxRate());
 
-        if(business instanceof Asset) {
+        if(article instanceof Asset) {
             assetRadio.setSelected(true);
             costField.setVisible(false);
             serviceLabel.setVisible(false);
         }
-        else if(business instanceof Service service) {
+        else if(article instanceof Service service) {
             serviceRadio.setSelected(true);
             costField.setVisible(true);
             serviceLabel.setVisible(true);

@@ -7,12 +7,12 @@ import hr.java.projekt.model.history.WritableHistory;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public abstract class Business extends Entity implements WritableHistory {
+public abstract class Article extends Entity implements WritableHistory {
     private String code, name, measure;
     private BigDecimal price, priceWithVAT;
     private TaxRate taxRate;
 
-    public Business(String code, String name, String measure, BigDecimal price, TaxRate taxRate) {
+    public Article(String code, String name, String measure, BigDecimal price, TaxRate taxRate) {
         super();
         this.code = code;
         this.name = name;
@@ -21,7 +21,7 @@ public abstract class Business extends Entity implements WritableHistory {
         this.setPrice(price);
     }
 
-    public Business(Long id, String code, String name, String measure, BigDecimal price, TaxRate taxRate) {
+    public Article(Long id, String code, String name, String measure, BigDecimal price, TaxRate taxRate) {
         super(id);
         this.code = code;
         this.name = name;

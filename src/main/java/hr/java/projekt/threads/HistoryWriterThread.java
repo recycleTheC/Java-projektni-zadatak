@@ -1,12 +1,12 @@
 package hr.java.projekt.threads;
 
-import hr.java.projekt.model.Entity;
 import hr.java.projekt.model.history.ChangeHistoryRecord;
 import hr.java.projekt.model.history.ChangeHistoryRecordFiles;
+import hr.java.projekt.model.history.WritableHistory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class HistoryWriterThread<Type extends ChangeHistoryRecord<? extends Entity>> implements Runnable{
+public final class HistoryWriterThread<Type extends ChangeHistoryRecord<? extends WritableHistory>> implements Runnable{
 
     private static final Logger logger = LoggerFactory.getLogger(HistoryWriterThread.class);
     private final Thread thread;

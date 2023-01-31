@@ -18,6 +18,18 @@
                   <MenuItem mnemonicParsing="false" onAction="#showAccountsView" text="Konta" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Robno knjigovodstvo">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Primka" />
+                  <MenuItem mnemonicParsing="false" text="Otpremnica" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Prodaja">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="Račun" />
+                  <MenuItem mnemonicParsing="false" text="Račun-otpremnica" />
+               </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Promjene">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#showChangesView" text="Pretraži promjene" />

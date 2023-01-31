@@ -79,7 +79,7 @@ public final class AccountEditorController implements CanSetTabTitle {
 
         StringBuilder validationError = new StringBuilder();
 
-        if(code.length() > 1) validationError.append("Šifra konta nije navedena ili je neispravna!\n");
+        if(code.length() <= 1) validationError.append("Šifra konta nije navedena ili je neispravna!\n");
         if(name.isBlank()) validationError.append("Naziv konta nije naveden!\n");
         if(Optional.ofNullable(type).isEmpty()) validationError.append("Tip konta nije naveden!\n");
 

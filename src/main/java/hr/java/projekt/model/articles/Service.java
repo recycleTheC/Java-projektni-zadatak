@@ -3,7 +3,7 @@ package hr.java.projekt.model.articles;
 import hr.java.projekt.model.TaxRate;
 import java.math.BigDecimal;
 
-public class Service extends Business {
+public class Service extends Article {
     public static Integer TYPE = 2;
     private BigDecimal costOfService;
     public Service(String code, String name, String measure, BigDecimal price, TaxRate taxRate, BigDecimal costOfService) {

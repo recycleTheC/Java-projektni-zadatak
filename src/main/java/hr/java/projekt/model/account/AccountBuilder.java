@@ -36,6 +36,6 @@ public class AccountBuilder {
     }
 
     public Account build() {
-        return new Account(code, name, type);
+        return new Account(id, code, name, type);
     }
 }

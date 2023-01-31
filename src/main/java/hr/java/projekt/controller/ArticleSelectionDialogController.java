@@ -2,7 +2,7 @@ package hr.java.projekt.controller;
 
 import hr.java.projekt.database.ArticleRepository;
 import hr.java.projekt.database.DatabaseException;
-import hr.java.projekt.model.articles.Business;
+import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.util.dialog.CanReturnTableViewSelection;
 import hr.java.projekt.util.dialog.MessageBox;
 import javafx.beans.property.SimpleObjectProperty;
@@ -16,19 +16,19 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 
-public final class ArticleSelectionDialogController implements CanReturnTableViewSelection<Business> {
+public final class ArticleSelectionDialogController implements CanReturnTableViewSelection<Article> {
     @FXML
-    public TableView<Business> articleTableView;
+    public TableView<Article> articleTableView;
     @FXML
-    private TableColumn<Business, String> codeColumn;
+    private TableColumn<Article, String> codeColumn;
     @FXML
-    private TableColumn<Business, String> nameColumn;
+    private TableColumn<Article, String> nameColumn;
     @FXML
-    private TableColumn<Business, String> measureColumn;
+    private TableColumn<Article, String> measureColumn;
     @FXML
-    private TableColumn<Business, BigDecimal> priceColumn;
+    private TableColumn<Article, BigDecimal> priceColumn;
     @FXML
-    private TableColumn<Business, BigDecimal> priceVATColumn;
+    private TableColumn<Article, BigDecimal> priceVATColumn;
     private static final Logger logger = LoggerFactory.getLogger(ArticleSelectionDialogController.class);
 
     public void initialize(){
@@ -48,7 +48,7 @@ public final class ArticleSelectionDialogController implements CanReturnTableVie
     }
 
     @Override
-    public Business getSelectedValue() {
+    public Article getSelectedValue() {
         return this.articleTableView.getSelectionModel().getSelectedItem();
     }
 }

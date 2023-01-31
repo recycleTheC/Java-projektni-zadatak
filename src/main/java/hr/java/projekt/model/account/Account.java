@@ -5,8 +5,9 @@
 package hr.java.projekt.model.account;
 
 import hr.java.projekt.model.Entity;
+import hr.java.projekt.model.history.WritableHistory;
 
-public class Account extends Entity {
+public class Account extends Entity implements WritableHistory {
     private String code, name;
     private AccountType type;
 
@@ -46,5 +47,19 @@ public class Account extends Entity {
 
     public void setType(AccountType type) {
         this.type = type;
+    }
+
+    @Override
+    public StringBuilder stringGenerator() {
+        StringBuilder builder = new StringBuilder("Konto ");
+        builder.append(this.getCode()).append("\n");
+        builder.append("Naziv: ").append(this.getName()).append("\n");
+        builder.append("Analitički konto: ").append(this.getType().getDescription()).append("\n");
+        return builder;
+    }
+
+    @Override
+    public String getIdentifier() {
+        return this.code;
     }
 }

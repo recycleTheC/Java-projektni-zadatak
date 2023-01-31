@@ -1,6 +1,8 @@
 package hr.java.projekt.controller;
 
-import hr.java.projekt.model.articles.Business;
+import hr.java.projekt.model.account.Account;
+import hr.java.projekt.model.articles.Article;
+import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.company.BasicCompanyData;
 import hr.java.projekt.model.history.*;
 import hr.java.projekt.util.dialog.MessageBox;
@@ -56,18 +58,30 @@ public class HistoryController {
         });
         documentRecordColumn.setCellValueFactory(cell -> {
             if(Optional.ofNullable(cell.getValue().getOldValue()).isPresent()){
-                if(cell.getValue().getOldValue() instanceof Business){
+                if(cell.getValue().getOldValue() instanceof Article){
                     return new SimpleStringProperty("Artikl");
                 }
                 else if(cell.getValue().getOldValue() instanceof BasicCompanyData){
                     return new SimpleStringProperty("Osnovni podatci tvrtke");
                 }
+                else if(cell.getValue().getOldValue() instanceof Business){
+                    return new SimpleStringProperty("Partner");
+                }
+                else if(cell.getValue().getOldValue() instanceof Account){
+                    return new SimpleStringProperty("Konto");
+                }
             } else if(Optional.ofNullable(cell.getValue().getNewValue()).isPresent()){
-                if(cell.getValue().getNewValue() instanceof Business){
+                if(cell.getValue().getNewValue() instanceof Article){
                     return new SimpleStringProperty("Artikl");
                 }
                 else if(cell.getValue().getNewValue() instanceof BasicCompanyData){
                     return new SimpleStringProperty("Osnovni podatci tvrtke");
+                }
+                else if(cell.getValue().getNewValue() instanceof Business){
+                    return new SimpleStringProperty("Partner");
+                }
+                else if(cell.getValue().getNewValue() instanceof Account){
+                    return new SimpleStringProperty("Konto");
                 }
             }
             return new SimpleStringProperty("nepoznato");

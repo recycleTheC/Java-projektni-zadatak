@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<GridPane alignment="CENTER" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.java.projekt.controller.HistoryController">
+   <children>
+      <Label text="Pretraživanje promjena podataka" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.valignment="TOP">
+         <font>
+            <Font name="System Bold Italic" size="14.0" />
+         </font>
+      </Label>
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="1">
+         <children>
+            <Label alignment="TOP_LEFT" text="Početni datum:" />
+            <DatePicker fx:id="startDateField" />
+         </children>
+      </VBox>
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+         <children>
+            <Label text="Krajnji datum:" />
+            <DatePicker fx:id="endDateField" />
+         </children>
+      </VBox>
+      <TableView fx:id="changeRecordsTable" onMouseReleased="#showChanges" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+        <columns>
+          <TableColumn fx:id="recordDateTimeColumn" prefWidth="137.0" text="Datum i vrijeme" />
+          <TableColumn fx:id="documentRecordColumn" minWidth="0.0" prefWidth="116.0" text="Dokument" />
+            <TableColumn fx:id="identifierRecordColumn" prefWidth="114.0" text="Identifikator" />
+            <TableColumn fx:id="changeTypeRecordColumn" prefWidth="100.0" text="Promjena" />
+            <TableColumn fx:id="operatorRecordColumn" prefWidth="117.0" text="Operater" />
+        </columns>
+         <GridPane.margin>
+            <Insets bottom="5.0" top="5.0" />
+         </GridPane.margin>
+      </TableView>
+      <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="3">
+         <children>
+            <Label text="Stara vrijednost" />
+            <TextArea fx:id="oldTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" />
+         </padding>
+      </VBox>
+      <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+         <children>
+            <Label text="Nova vrijednost" />
+            <TextArea fx:id="newTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" />
+         </padding>
+      </VBox>
+   </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+   <columnConstraints>
+      <ColumnConstraints prefWidth="300.0" />
+      <ColumnConstraints prefWidth="300.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints prefHeight="20.0" />
+      <RowConstraints prefHeight="100.0" />
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+</GridPane>

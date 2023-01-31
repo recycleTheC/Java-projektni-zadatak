@@ -3,7 +3,7 @@ package hr.java.projekt.model.articles;
 import hr.java.projekt.model.TaxRate;
 import java.math.BigDecimal;
 
-public class Asset extends Article {
+public class Asset extends Business {
     public static Integer TYPE = 1;
     private BigDecimal purchasePrice;
     private BigDecimal inventory;

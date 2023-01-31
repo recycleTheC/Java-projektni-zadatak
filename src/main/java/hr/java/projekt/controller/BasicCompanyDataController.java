@@ -1,6 +1,10 @@
 package hr.java.projekt.controller;
 
+import hr.java.projekt.model.history.ChangeHistoryRecordFiles;
+import hr.java.projekt.model.history.CreatedChangeRecord;
+import hr.java.projekt.model.history.UpdatedChangeRecord;
 import hr.java.projekt.model.company.BasicCompanyData;
+import hr.java.projekt.util.dialog.MessageBox;
 import hr.java.projekt.util.files.BasicCompanyDataFile;
 import hr.java.projekt.util.validation.iban.IBANValidationException;
 import hr.java.projekt.util.validation.iban.IBANValidator;
@@ -12,6 +16,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,10 +38,18 @@ public class BasicCompanyDataController {
     @FXML
     private ChoiceBox<String> uSustavuPDVaBox;
 
-    BasicCompanyData tvrtka;
+    private BasicCompanyData tvrtka;
+    private static final Logger logger = LoggerFactory.getLogger(BasicCompanyDataController.class);
 
-    public void initialize() throws IOException {
-        tvrtka = BasicCompanyDataFile.read();
+    public void initialize() {
+        try {
+            tvrtka = BasicCompanyDataFile.read();
+        }
+        catch (IOException | IBANValidationException | OIBValidationException ex){
+            logger.error(ex.getMessage(), ex);
+            MessageBox.show("Osnovni podatci", "KRITIČNA POGREŠKA", "Datoteka s osnovnim podatcima o tvrtki sadrži kritičnu pogrešku i nastavak rada nije moguć!\nPopravite datoteku ili prepišite sadržaj datoteke u nastavku!\n", ex);
+            tvrtka = new BasicCompanyData();
+        }
 
         nazivField.setText(tvrtka.getName());
         adresaField.setText(tvrtka.getAddress());
@@ -49,53 +63,48 @@ public class BasicCompanyDataController {
 
         oibField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
             if(unfocused){
-                provjeriUpisaniOib();
+                checkOIBField();
             }
         });
 
         ibanField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
             if(unfocused){
-                provjeriUpisaniIBAN();
+                checkIBANField();
             }
         });
     }
-    public void provjeriUpisaniOib(){
+    public void checkOIBField(){
         String oib = oibField.getText();
 
         try {
-            OIBValidator.validate(oib);
-            oibField.setStyle("-fx-text-fill: green;");
+            if(!oib.isBlank()) {
+                OIBValidator.validate(oib);
+                oibField.setStyle("-fx-text-fill: green;");
+            }
         } catch (OIBValidationException e) {
-            Alert invalidOIBAlert = new Alert(Alert.AlertType.ERROR);
-            invalidOIBAlert.setTitle("Validacija OIB-a");
-            invalidOIBAlert.setContentText(e.getMessage());
-            invalidOIBAlert.setHeaderText("Pogrešan OIB");
-            invalidOIBAlert.show();
-
+            MessageBox.show("Validacija OIB-a", "Pogrešan OIB", e.getMessage(), Alert.AlertType.ERROR);
             oibField.setStyle("-fx-text-fill: red;");
             oibField.requestFocus();
         }
     }
 
-    public void provjeriUpisaniIBAN(){
+    public void checkIBANField(){
         String iban = ibanField.getText();
 
         try {
-            IBANValidator.validate(iban);
-            ibanField.setStyle("-fx-text-fill: green;");
+            if(!iban.isBlank()){
+                IBANValidator.validate(iban);
+                ibanField.setStyle("-fx-text-fill: green;");
+            }
         } catch (IBANValidationException e) {
-            Alert invalidOIBAlert = new Alert(Alert.AlertType.ERROR);
-            invalidOIBAlert.setTitle("Validacija IBAN-a");
-            invalidOIBAlert.setContentText(e.getMessage());
-            invalidOIBAlert.setHeaderText("Pogrešan IBAN");
-            invalidOIBAlert.show();
-
+            MessageBox.show("Validacija IBAN-a", "Pogrešan IBAN", e.getMessage(), Alert.AlertType.ERROR);
             ibanField.setStyle("-fx-text-fill: red;");
             ibanField.requestFocus();
         }
     }
 
-    public void spremiPodatke(){
+    public void saveData(){
+        BasicCompanyData oldData = tvrtka;
         String naziv = nazivField.getText();
         String adresa = adresaField.getText();
         String postanskiBrojMjesto = postanskiBrojMjestoField.getText();
@@ -103,64 +112,50 @@ public class BasicCompanyDataController {
         String oib = oibField.getText();
         String opis = ispisPodatciField.getText();
 
-        boolean spremiPodatke = true, uspjeh;
-        String ispisPogreske = "";
+        StringBuilder ispisPogreske = new StringBuilder();
 
         if(naziv.isBlank()) {
-            spremiPodatke = false;
-            ispisPogreske += "Nije upisan naziv tvrtke!\n";
+            ispisPogreske.append("Nije upisan naziv tvrtke!\n");
         }
-
         if(adresa.isBlank()){
-            spremiPodatke = false;
-            ispisPogreske += "Nije upisana adresa tvrtke!\n";
+            ispisPogreske.append("Nije upisana adresa tvrtke!\n");
         }
-
         if(postanskiBrojMjesto.isBlank()){
-            spremiPodatke = false;
-            ispisPogreske += "Nisu upisani poštanski broj i/ili mjesto tvrtke!\n";
+            ispisPogreske.append("Nisu upisani poštanski broj i/ili mjesto tvrtke!\n");
         }
-
         if(oib.isBlank()){
-            spremiPodatke = false;
-            ispisPogreske += "Nije upisan OIB tvrtke!\n";
+            ispisPogreske.append("Nije upisan OIB tvrtke!\n");
         }
-
         if(oib.isBlank()){
-            spremiPodatke = false;
-            ispisPogreske += "Nije upisan IBAN žiro računa tvrtke!\n";
+            ispisPogreske.append("Nije upisan IBAN žiro računa tvrtke!\n");
         }
 
-        if(spremiPodatke){
+        if(ispisPogreske.isEmpty()){
             tvrtka = new BasicCompanyData(naziv, adresa, postanskiBrojMjesto);
             tvrtka.setDescription(opis);
             tvrtka.setRegisteredForVAT(uSustavuPDVaBox.getValue().compareTo("da") == 0);
+
             try {
                 tvrtka.setOIB(oib);
                 tvrtka.setIBAN(iban);
 
                 BasicCompanyDataFile.write(tvrtka);
-                uspjeh = true;
+
+                if(oldData != null) ChangeHistoryRecordFiles.write(new UpdatedChangeRecord<>(oldData, tvrtka));
+                else ChangeHistoryRecordFiles.write(new CreatedChangeRecord<>(tvrtka));
+
+                MessageBox.show("Osnovni podatci", "Upis podataka", "Podatci su spremljeni!", Alert.AlertType.INFORMATION);
             }
-            catch (IBANValidationException | OIBValidationException | IOException e){
-                System.out.println(e.getMessage());
-                uspjeh = false;
+            catch (IOException e){
+                MessageBox.show("Osnovni podatci", "Upis podataka", "Podatci nisu spremljeni", Alert.AlertType.ERROR);
+                logger.error(e.getMessage(), e.getCause());
+            }
+            catch (IBANValidationException | OIBValidationException ex){
+                MessageBox.show("Osnovni podatci", "Upis podataka", "Podatci nisu spremljeni zbog pogreške u validaciji podataka!\n" + ex.getMessage(), Alert.AlertType.ERROR);
             }
         }
         else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Validacija podataka");
-            alert.setContentText(ispisPogreske);
-            alert.setHeaderText("Nedostatak podataka");
-            alert.show();
-            uspjeh = false;
+            MessageBox.show("Validacija podataka", "Nedostatak podataka", ispisPogreske.toString(), Alert.AlertType.ERROR);
         }
-
-        Alert alert = new Alert(uspjeh ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
-        alert.setTitle("Osnovni podatci");
-        alert.setContentText(uspjeh ? "Podatci su spremljeni!" : "Podatci nisu spremljeni");
-        alert.setHeaderText("Upis podataka");
-        alert.show();
-
     }
 }

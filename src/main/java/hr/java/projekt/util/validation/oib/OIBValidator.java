@@ -9,7 +9,7 @@ public class OIBValidator {
 
         for(int i = 0; i < 10; i++) {
             char znamenka = znamenke[i];
-            if(znamenka < '0' || znamenka > '9') throw new OIBValidationException("OIB sadrži nedopuštene znakove!");
+            if(znamenka < '0' || znamenka > '9') throw new OIBValidationException("OIB sadrži nedopuštene znakove! " + oib);
 
             provjera += znamenka - '0';
             provjera %= 10;
@@ -23,7 +23,7 @@ public class OIBValidator {
         int kontrolni = 11 - provjera;
         kontrolni %= 10;
 
-        if(kontrolni != (znamenke[10] - '0')) throw new OIBValidationException("Kontrolni broj OIB-a je neispravan!");
+        if(kontrolni != (znamenke[10] - '0')) throw new OIBValidationException("Kontrolni broj OIB-a je neispravan! " + oib);
 
         return true;
     }

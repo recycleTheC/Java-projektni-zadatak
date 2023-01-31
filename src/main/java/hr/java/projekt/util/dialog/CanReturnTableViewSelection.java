@@ -1,8 +1,8 @@
 package hr.java.projekt.util.dialog;
 
 import hr.java.projekt.controller.ArticleSelectionDialogController;
-import javafx.scene.control.TableView;
+import hr.java.projekt.controller.PartnerSelectionDialogController;
 
-public sealed interface CanReturnTableViewSelection<T> permits ArticleSelectionDialogController {
-    TableView<T> getSelectedValue();
+public sealed interface CanReturnTableViewSelection<T> permits ArticleSelectionDialogController, PartnerSelectionDialogController {
+    T getSelectedValue();
 }

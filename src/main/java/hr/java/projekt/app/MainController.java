@@ -1,9 +1,6 @@
 package hr.java.projekt.app;
 
-import hr.java.projekt.controller.ArticleEditorController;
-import hr.java.projekt.controller.BasicCompanyDataController;
-import hr.java.projekt.controller.HomeController;
-import hr.java.projekt.controller.CanSetTabTitle;
+import hr.java.projekt.controller.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -55,5 +52,13 @@ public class MainController {
 
     public void showArticlesView() throws IOException {
         showView("Artikli", ArticleEditorController.class.getResource("article-editor.fxml"));
+    }
+
+    public void showChangesView() throws IOException {
+        showView("Promjene", HistoryController.class.getResource("changes-view.fxml"));
+    }
+
+    public void showPartnersView() throws IOException {
+        showView("Partneri", PartnerEditorController.class.getResource("partner-editor.fxml"));
     }
 }

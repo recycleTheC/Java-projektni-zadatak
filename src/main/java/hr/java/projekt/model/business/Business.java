@@ -1,12 +1,13 @@
 package hr.java.projekt.model.business;
 
 import hr.java.projekt.model.Entity;
+import hr.java.projekt.model.history.WritableHistory;
 import hr.java.projekt.util.validation.iban.IBANValidationException;
 import hr.java.projekt.util.validation.iban.IBANValidator;
 import hr.java.projekt.util.validation.oib.OIBValidationException;
 import hr.java.projekt.util.validation.oib.OIBValidator;
 
-public class Business extends Entity {
+public class Business extends Entity implements WritableHistory {
     private String name, address, postalCodeAndTown, oib, iban;
 
     public Business() {
@@ -71,5 +72,22 @@ public class Business extends Entity {
         if(IBANValidator.validate(iban)){
             this.iban = iban;
         }
+    }
+
+    @Override
+    public StringBuilder stringGenerator() {
+        StringBuilder builder = new StringBuilder("Partner ");
+        builder.append(this.getId()).append("\n");
+        builder.append("Naziv: ").append(this.getName()).append("\n");
+        builder.append("Adresa: ").append(this.getAddress()).append("\n");
+        builder.append("Poštanski broj, mjesto: ").append(this.getPostalCodeAndTown()).append("\n");
+        builder.append("OIB: ").append(this.getOIB()).append("\n");
+        builder.append("IBAN: ").append(this.getIBAN()).append("\n");
+        return builder;
+    }
+
+    @Override
+    public String getIdentifier() {
+        return this.getId().toString();
     }
 }

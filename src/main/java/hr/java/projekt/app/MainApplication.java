@@ -6,10 +6,18 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+
+        Path changesPaths = Path.of("changes");
+        if(!Files.exists(changesPaths)){
+            Files.createDirectory(changesPaths);
+        }
+
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 800, 600);
         stage.setTitle("Knjigovodstvo - (c) Mario Kopjar 2022.");

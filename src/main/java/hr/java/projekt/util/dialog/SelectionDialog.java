@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.TableView;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -22,11 +21,9 @@ public class SelectionDialog {
         FXMLLoader fxmlLoader = new FXMLLoader(SelectionDialog.class.getResource(fxml));
         dialog.getDialogPane().setContent(fxmlLoader.load());
 
-        TableView<Model> tableView = fxmlLoader.<Controller>getController().getSelectedValue();
-
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == confirmButton) {
-                return tableView.getSelectionModel().getSelectedItem();
+                return fxmlLoader.<Controller>getController().getSelectedValue();
             }
             return null;
         });

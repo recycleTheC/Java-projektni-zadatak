@@ -16,6 +16,7 @@ public class BusinessBuilder {
     public BusinessBuilder(Long id) {
         this.id = id;
     }
+    public BusinessBuilder() {}
 
     public BusinessBuilder setName(String name) {
         this.name = name;
@@ -34,8 +35,13 @@ public class BusinessBuilder {
 
     public BusinessBuilder setOIB(String oib) throws OIBValidationException {
         if(OIBValidator.validate(oib)){
-            this.iban = iban;
+            this.oib = oib;
         }
+        return this;
+    }
+
+    public BusinessBuilder setUncheckedOIB(String oib) {
+        this.oib = oib;
         return this;
     }
 
@@ -43,6 +49,11 @@ public class BusinessBuilder {
         if(IBANValidator.validate(iban)){
             this.iban = iban;
         }
+        return this;
+    }
+
+    public BusinessBuilder setUncheckedIBAN(String iban) {
+        this.iban = iban;
         return this;
     }
 

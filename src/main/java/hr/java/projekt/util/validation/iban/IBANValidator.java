@@ -19,7 +19,7 @@ public class IBANValidator {
         BigInteger ostatak = new BigInteger(ostatakIBANa).mod(BigInteger.valueOf(97));
         BigInteger izracunatiKontrolniBroj = BigInteger.valueOf(97).add(BigInteger.ONE).subtract(ostatak);
 
-        if(izracunatiKontrolniBroj.compareTo(upisaniKontrolniBroj) != 0) throw new IBANValidationException("Neispravan kontrolni broj IBAN-a!");
+        if(izracunatiKontrolniBroj.compareTo(upisaniKontrolniBroj) != 0) throw new IBANValidationException("Neispravan kontrolni broj IBAN-a! " + iban);
 
         return true;
     }

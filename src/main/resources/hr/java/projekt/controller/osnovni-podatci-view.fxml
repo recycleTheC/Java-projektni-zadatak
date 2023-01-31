@@ -106,7 +106,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </GridPane.margin>
       </TextArea>
-      <Button mnemonicParsing="false" onAction="#spremiPodatke" prefHeight="25.0" prefWidth="294.0" text="Spremi osnovne podatke" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="8" />
+      <Button mnemonicParsing="false" onAction="#saveData" prefHeight="25.0" prefWidth="294.0" text="Spremi osnovne podatke" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="8" />
    </children>
    <padding>
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

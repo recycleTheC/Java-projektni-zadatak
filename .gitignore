@@ -4,6 +4,8 @@ target/
 !**/src/test/**/target/
 
 files/
+logs/
+history/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

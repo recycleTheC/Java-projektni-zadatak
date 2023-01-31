@@ -4,6 +4,8 @@ import hr.java.projekt.database.ArticleRepository;
 import hr.java.projekt.database.DatabaseException;
 import hr.java.projekt.model.TaxRate;
 import hr.java.projekt.model.articles.*;
+import hr.java.projekt.model.history.*;
+import hr.java.projekt.threads.HistoryWriterThread;
 import hr.java.projekt.util.CustomStringConverters;
 import hr.java.projekt.util.dialog.ConfirmationDialog;
 import hr.java.projekt.util.dialog.MessageBox;
@@ -12,6 +14,8 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -43,11 +47,12 @@ public class ArticleEditorController implements CanSetTabTitle {
     private Button deleteButton;
 
     private ArticleRepository articleRepository;
-    private Optional<Article> savedArticle;
+    private Optional<Business> savedItem;
     private Tab tab;
+    private static final Logger logger = LoggerFactory.getLogger(ArticleEditorController.class);
     @FXML
     private void initialize() {
-        savedArticle = Optional.empty();
+        savedItem = Optional.empty();
         articleRepository = new ArticleRepository();
         taxRateBox.setItems(FXCollections.observableArrayList(TaxRate.values()));
         taxRateBox.setConverter(CustomStringConverters.TAX_RATE_STRING_CONVERTER);
@@ -83,13 +88,10 @@ public class ArticleEditorController implements CanSetTabTitle {
         codeField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
             if(unfocused){
                 try {
-                    Optional<Article> article = articleRepository.get(codeField.getText());
-
-                    if(article.isPresent()){
-                        codeField.setDisable(true);
-                        setFields(article.get());
-                    }
+                    Optional<Business> article = articleRepository.get(codeField.getText());
+                    article.ifPresent(this::setFields);
                 } catch (DatabaseException e) {
+                    logger.error(e.getMessage(), e.getCause());
                     MessageBox.show("Artikl","Pogreška u radu s bazom podataka", "Nije moguće napraviti provjeru u bazi podataka!\n" + e.getCause().getMessage());
                 }
             }
@@ -112,14 +114,8 @@ public class ArticleEditorController implements CanSetTabTitle {
 
     @FXML
     private void selectArticle() throws IOException {
-        Optional<Article> selection = SelectionDialog.showDialog("Artikl", "Odabir artikla", "article-selection-dialog.fxml");
-
-        if(selection.isPresent()){
-            setFields(selection.get());
-        }
-        else {
-            resetFields();
-        }
+        Optional<Business> selection = SelectionDialog.showDialog("Artikl", "Odabir artikla", "article-selection-dialog.fxml");
+        selection.ifPresent(this::setFields);
     }
 
     @FXML
@@ -143,13 +139,13 @@ public class ArticleEditorController implements CanSetTabTitle {
             return;
         }
 
-        Boolean confirmation = ConfirmationDialog.showDialog("Artikl", "Spremanje artikla", "Želite li spremiti artikl '" + code + "'?");
+        boolean confirmation = ConfirmationDialog.showDialog("Artikl", "Spremanje artikla", "Želite li spremiti artikl '" + code + "'?");
         if(!confirmation) return;
 
-        Article article;
+        Business business;
 
         if(assetRadio.isSelected()){
-            article = new AssetBuilder().setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(rate).build();
+            business = new AssetBuilder().setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(rate).build();
         }
         else {
             ServiceBuilder builder = new ServiceBuilder().setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(rate);
@@ -159,46 +155,55 @@ public class ArticleEditorController implements CanSetTabTitle {
                 builder.setCostOfService(BigDecimal.valueOf(cost));
             }
 
-            article = builder.build();
+            business = builder.build();
         }
 
         try {
-            if(savedArticle.isPresent()) articleRepository.update(savedArticle.get().getId(), article);
-            else articleRepository.save(article);
+            if(savedItem.isPresent()) {
+                articleRepository.update(savedItem.get().getId(), business);
+                new HistoryWriterThread<>(new UpdatedChangeRecord<>(savedItem.get(), business)).start();
+            }
+            else {
+                articleRepository.save(business);
+                new HistoryWriterThread<>(new CreatedChangeRecord<>(business)).start();
+            }
 
-            MessageBox.show("Artikl", "Spremanje artikla", "Artikl " + article.getCode() + " uspješno spremljen!");
+            MessageBox.show("Artikl", "Spremanje artikla", "Artikl " + business.getCode() + " uspješno spremljen!");
             resetFields();
         } catch (DatabaseException ex) {
-            MessageBox.show("Artikl", "Pogreška u radu s bazom podataka", "Artikl " + article.getCode() + "nije spremljen!", ex);
+            logger.error(ex.getMessage(), ex.getCause());
+            MessageBox.show("Artikl", "Pogreška u radu s bazom podataka", "Artikl " + business.getCode() + "nije spremljen!", ex);
         }
     }
 
     @FXML
     private void deleteArticle(){
-        Boolean result = ConfirmationDialog.showDialog("Artikl", "Brisanje artikla", "Jeste li sigurni da želite obrisati artikl '" + codeField.getText() + "'?");
+        boolean result = ConfirmationDialog.showDialog("Artikl", "Brisanje artikla", "Jeste li sigurni da želite obrisati artikl '" + codeField.getText() + "'?");
 
         if(result) {
             try {
-                articleRepository.delete(savedArticle.get());
-                MessageBox.show("Artikl", "Brisanje artikla", "Artikl " + savedArticle.get().getCode() + " uspješno obrisan!");
+                articleRepository.delete(savedItem.get());
+                new HistoryWriterThread<>(new DeletedChangeRecord<>(savedItem.get())).start();
+                MessageBox.show("Artikl", "Brisanje artikla", "Artikl " + savedItem.get().getCode() + " uspješno obrisan!");
                 resetFields();
             } catch (DatabaseException ex) {
-                MessageBox.show("Artikl", "Pogreška u radu s bazom podataka", "Artikl " + savedArticle.get().getCode() + "se ne može obrisati iz baze podataka!", ex);
+                logger.error(ex.getMessage(), ex.getCause());
+                MessageBox.show("Artikl", "Pogreška u radu s bazom podataka", "Artikl " + savedItem.get().getCode() + "se ne može obrisati iz baze podataka!", ex);
             }
         }
     }
 
     @FXML
     private void cancelEdit(){
-        if(savedArticle.isEmpty() || codeField.getText().isEmpty()) return;
-        Boolean confirmation = ConfirmationDialog.showDialog("Artikl", "Odustajanje", "Jeste li sigurni da želite odustati od uređivanja artikla?");
+        if(savedItem.isEmpty() || codeField.getText().isEmpty()) return;
+        boolean confirmation = ConfirmationDialog.showDialog("Artikl", "Odustajanje", "Jeste li sigurni da želite odustati od uređivanja artikla?");
         if(confirmation) resetFields();
     }
 
     @FXML
     private void resetFields() {
         setTabTitle("Artikli");
-        savedArticle = Optional.empty();
+        savedItem = Optional.empty();
         codeField.setText("");
         codeField.setDisable(false);
         deleteButton.setDisable(true);
@@ -215,24 +220,24 @@ public class ArticleEditorController implements CanSetTabTitle {
         costField.getValueFactory().setValue((double) 0);
     }
 
-    private void setFields(Article article){
-        setTabTitle("Artikl '" + article.getCode() + "'");
-        savedArticle = Optional.of(article);
-        codeField.setText(article.getCode());
+    private void setFields(Business business){
+        setTabTitle("Artikl '" + business.getCode() + "'");
+        savedItem = Optional.of(business);
+        codeField.setText(business.getCode());
         codeField.setDisable(true);
         deleteButton.setDisable(false);
 
-        nameField.setText(article.getName());
-        measureField.setText(article.getMeasure());
-        priceField.getValueFactory().setValue(article.getPrice().doubleValue());
-        taxRateBox.getSelectionModel().select(article.getTaxRate());
+        nameField.setText(business.getName());
+        measureField.setText(business.getMeasure());
+        priceField.getValueFactory().setValue(business.getPrice().doubleValue());
+        taxRateBox.getSelectionModel().select(business.getTaxRate());
 
-        if(article instanceof Asset) {
+        if(business instanceof Asset) {
             assetRadio.setSelected(true);
             costField.setVisible(false);
             serviceLabel.setVisible(false);
         }
-        else if(article instanceof Service service) {
+        else if(business instanceof Service service) {
             serviceRadio.setSelected(true);
             costField.setVisible(true);
             serviceLabel.setVisible(true);

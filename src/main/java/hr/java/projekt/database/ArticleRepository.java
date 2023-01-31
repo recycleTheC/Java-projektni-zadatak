@@ -13,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ArticleRepository implements Dao<Article> {
+public class ArticleRepository implements Dao<Business> {
     @Override
-    public Optional<Article> get(Long id) throws DatabaseException {
-        Optional<Article> article = Optional.empty();
+    public Optional<Business> get(Long id) throws DatabaseException {
+        Optional<Business> article = Optional.empty();
 
         try (Connection db = Database.connectToDatabase()){
             PreparedStatement query = db.prepareStatement("SELECT * FROM ARTICLES WHERE ID = ? LIMIT 1");
@@ -34,12 +34,12 @@ public class ArticleRepository implements Dao<Article> {
         return article;
     }
 
-    public Optional<Article> get(String code) throws DatabaseException {
-        Optional<Article> article = Optional.empty();
+    public Optional<Business> get(String code) throws DatabaseException {
+        Optional<Business> article = Optional.empty();
 
         try (Connection db = Database.connectToDatabase()){
-            PreparedStatement query = db.prepareStatement("SELECT * FROM ARTICLES WHERE CODE = ? LIMIT 1");
-            query.setString(1, code);
+            PreparedStatement query = db.prepareStatement("SELECT * FROM ARTICLES WHERE LOWER(CODE) = ? LIMIT 1");
+            query.setString(1, code.toLowerCase());
 
             ResultSet result = query.executeQuery();
 
@@ -54,80 +54,80 @@ public class ArticleRepository implements Dao<Article> {
     }
 
     @Override
-    public List<Article> getMany() throws DatabaseException {
-        List<Article> articles = new ArrayList<>();
+    public List<Business> getMany() throws DatabaseException {
+        List<Business> businesses = new ArrayList<>();
 
         try (Connection db = Database.connectToDatabase()){
             PreparedStatement query = db.prepareStatement("SELECT * FROM ARTICLES");
             ResultSet result = query.executeQuery();
 
             while (result.next()) {
-                articles.add(mapResultSet(result));
+                businesses.add(mapResultSet(result));
             }
         } catch (SQLException | IOException ex) {
             throw new DatabaseException("Greška pri radu s bazom podataka!", ex);
         }
 
-        return articles;
+        return businesses;
     }
 
     @Override
-    public void save(Article article) throws DatabaseException {
+    public void save(Business business) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()){
             PreparedStatement query = db.prepareStatement("INSERT INTO ARTICLES (CODE, NAME, PRICE, TAX_RATE, TYPE, MEASURE, AVG_COST) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-            query.setString(1, article.getCode());
-            query.setString(2, article.getName());
-            query.setBigDecimal(3, article.getPrice());
-            query.setString(4, article.getTaxRate().toString());
-            query.setInt(5, article.getType());
-            query.setString(6, article.getMeasure());
+            query.setString(1, business.getCode());
+            query.setString(2, business.getName());
+            query.setBigDecimal(3, business.getPrice());
+            query.setString(4, business.getTaxRate().toString());
+            query.setInt(5, business.getType());
+            query.setString(6, business.getMeasure());
 
-            if(article instanceof Service service) query.setBigDecimal(7, service.getCostOfService());
+            if(business instanceof Service service) query.setBigDecimal(7, service.getCostOfService());
             else query.setBigDecimal(7, null);
 
             query.executeUpdate();
         } catch (SQLException | IOException ex) {
-            throw new DatabaseException("Greška kod spremanja artikla '" + article.getCode() + "'", ex);
+            throw new DatabaseException("Greška kod spremanja artikla '" + business.getCode() + "'", ex);
         }
     }
 
     @Override
-    public void update(Long id, Article article) throws DatabaseException {
+    public void update(Long id, Business business) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()){
             PreparedStatement query = db.prepareStatement("UPDATE ARTICLES SET CODE = ?, NAME = ?, PRICE = ?, TAX_RATE = ?, TYPE = ?, MEASURE = ?, AVG_COST = ? WHERE ID = ?");
 
-            query.setString(1, article.getCode());
-            query.setString(2, article.getName());
-            query.setBigDecimal(3, article.getPrice());
-            query.setString(4, article.getTaxRate().toString());
-            query.setInt(5, article.getType());
-            query.setString(6, article.getMeasure());
+            query.setString(1, business.getCode());
+            query.setString(2, business.getName());
+            query.setBigDecimal(3, business.getPrice());
+            query.setString(4, business.getTaxRate().toString());
+            query.setInt(5, business.getType());
+            query.setString(6, business.getMeasure());
 
-            if(article instanceof Service service) query.setBigDecimal(7, service.getCostOfService());
+            if(business instanceof Service service) query.setBigDecimal(7, service.getCostOfService());
             else query.setBigDecimal(7, null);
 
             query.setLong(8, id);
 
             query.executeUpdate();
         } catch (SQLException | IOException ex) {
-            throw new DatabaseException("Greška kod ažuriranja artikla '" + article.getCode() + "'", ex);
+            throw new DatabaseException("Greška kod ažuriranja artikla '" + business.getCode() + "'", ex);
         }
     }
 
     @Override
-    public void delete(Article article) throws DatabaseException {
+    public void delete(Business business) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()){
             PreparedStatement query = db.prepareStatement("DELETE FROM ARTICLES WHERE ID = ?");
-            query.setLong(1, article.getId());
+            query.setLong(1, business.getId());
             query.executeUpdate();
         } catch (SQLException | IOException ex) {
-            throw new DatabaseException("Greška kod brisanja artikla '" + article.getCode() + "'", ex);
+            throw new DatabaseException("Greška kod brisanja artikla '" + business.getCode() + "'", ex);
         }
     }
 
     @Override
-    public Article mapResultSet(ResultSet resultSet) throws SQLException, DatabaseException {
+    public Business mapResultSet(ResultSet resultSet) throws SQLException, DatabaseException {
         Long id = resultSet.getLong("ID");
         Integer type = resultSet.getInt("TYPE");
         String code = resultSet.getString("CODE");

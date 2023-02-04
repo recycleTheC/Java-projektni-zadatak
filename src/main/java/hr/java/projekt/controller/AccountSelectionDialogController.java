@@ -28,7 +28,7 @@ public final class AccountSelectionDialogController implements CanReturnTableVie
     private TableColumn<Account, String> typeColumn;
     private static final Logger logger = LoggerFactory.getLogger(AccountSelectionDialogController.class);
 
-    public void initialize(){
+    public void initialize() {
         AccountRepository repository = new AccountRepository();
         try {
             accountTableView.setItems(FXCollections.observableList(repository.getMany()));

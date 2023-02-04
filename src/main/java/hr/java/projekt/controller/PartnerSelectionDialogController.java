@@ -29,7 +29,7 @@ public final class PartnerSelectionDialogController implements CanReturnTableVie
     private TableColumn<Business, String> oibColumn;
     private static final Logger logger = LoggerFactory.getLogger(PartnerSelectionDialogController.class);
 
-    public void initialize(){
+    public void initialize() {
         BusinessRepository repository = new BusinessRepository();
         try {
             partnerTableView.setItems(FXCollections.observableList(repository.getMany()));

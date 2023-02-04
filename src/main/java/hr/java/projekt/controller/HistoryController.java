@@ -1,10 +1,12 @@
 package hr.java.projekt.controller;
 
+import hr.java.projekt.model.Entity;
 import hr.java.projekt.model.account.Account;
 import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.company.BasicCompanyData;
 import hr.java.projekt.model.history.*;
+import hr.java.projekt.model.inventory.assetinput.AssetInput;
 import hr.java.projekt.util.dialog.MessageBox;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -43,9 +45,9 @@ public class HistoryController {
     private static final Logger logger = LoggerFactory.getLogger(HistoryController.class);
 
     @FXML
-    private void initialize(){
+    private void initialize() {
         recordDateTimeColumn.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getTimeStamp()));
-        recordDateTimeColumn.setCellFactory((TableColumn<ChangeHistoryRecord, LocalDateTime> column) -> new TableCell<>() {
+        recordDateTimeColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(LocalDateTime item, boolean empty) {
                 super.updateItem(item, empty);
@@ -57,37 +59,14 @@ public class HistoryController {
             }
         });
         documentRecordColumn.setCellValueFactory(cell -> {
-            if(Optional.ofNullable(cell.getValue().getOldValue()).isPresent()){
-                if(cell.getValue().getOldValue() instanceof Article){
-                    return new SimpleStringProperty("Artikl");
-                }
-                else if(cell.getValue().getOldValue() instanceof BasicCompanyData){
-                    return new SimpleStringProperty("Osnovni podatci tvrtke");
-                }
-                else if(cell.getValue().getOldValue() instanceof Business){
-                    return new SimpleStringProperty("Partner");
-                }
-                else if(cell.getValue().getOldValue() instanceof Account){
-                    return new SimpleStringProperty("Konto");
-                }
-            } else if(Optional.ofNullable(cell.getValue().getNewValue()).isPresent()){
-                if(cell.getValue().getNewValue() instanceof Article){
-                    return new SimpleStringProperty("Artikl");
-                }
-                else if(cell.getValue().getNewValue() instanceof BasicCompanyData){
-                    return new SimpleStringProperty("Osnovni podatci tvrtke");
-                }
-                else if(cell.getValue().getNewValue() instanceof Business){
-                    return new SimpleStringProperty("Partner");
-                }
-                else if(cell.getValue().getNewValue() instanceof Account){
-                    return new SimpleStringProperty("Konto");
-                }
-            }
-            return new SimpleStringProperty("nepoznato");
+            if (Optional.ofNullable(cell.getValue().getOldValue()).isPresent()) {
+                return getRecordType(cell.getValue().getOldValue());
+            } else if (Optional.ofNullable(cell.getValue().getNewValue()).isPresent()) {
+                return getRecordType(cell.getValue().getNewValue());
+            } else return new SimpleStringProperty("nepoznato");
         });
         changeTypeRecordColumn.setCellValueFactory(cell -> {
-            if(cell.getValue() instanceof CreatedChangeRecord<?>){
+            if (cell.getValue() instanceof CreatedChangeRecord<?>) {
                 return new SimpleStringProperty("kreiranje");
             } else if (cell.getValue() instanceof UpdatedChangeRecord<?>) {
                 return new SimpleStringProperty("ažuriranje");
@@ -96,13 +75,12 @@ public class HistoryController {
             } else return new SimpleStringProperty("nepoznato");
         });
         identifierRecordColumn.setCellValueFactory(cell -> {
-            if(Optional.ofNullable(cell.getValue().getOldValue()).isPresent()){
-                if(cell.getValue().getOldValue() instanceof WritableHistory item){
+            if (Optional.ofNullable(cell.getValue().getOldValue()).isPresent()) {
+                if (cell.getValue().getOldValue() instanceof WritableHistory item) {
                     return new SimpleStringProperty(item.getIdentifier());
                 }
-            }
-            else if(Optional.ofNullable(cell.getValue().getNewValue()).isPresent()){
-                if(cell.getValue().getNewValue() instanceof WritableHistory item){
+            } else if (Optional.ofNullable(cell.getValue().getNewValue()).isPresent()) {
+                if (cell.getValue().getNewValue() instanceof WritableHistory item) {
                     return new SimpleStringProperty(item.getIdentifier());
                 }
             }
@@ -114,34 +92,44 @@ public class HistoryController {
         try {
             changeRecordsTable.setItems(FXCollections.observableArrayList(ChangeHistoryRecordFiles.readAll()));
         } catch (IOException | ClassNotFoundException e) {
-           logger.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             MessageBox.show("Dohvat promjena", "Greška kod dohvata podataka", "Dohvat promjena nije moguć!", e);
         }
     }
 
+    private SimpleStringProperty getRecordType(Entity value) {
+        if (value instanceof Article) {
+            return new SimpleStringProperty("Artikl");
+        } else if (value instanceof BasicCompanyData) {
+            return new SimpleStringProperty("Osnovni podatci tvrtke");
+        } else if (value instanceof Business) {
+            return new SimpleStringProperty("Partner");
+        } else if (value instanceof Account) {
+            return new SimpleStringProperty("Konto");
+        } else if (value instanceof AssetInput) {
+            return new SimpleStringProperty("Primka");
+        } else return new SimpleStringProperty("Nepoznato");
+    }
+
     @FXML
-    private void showChanges(){
+    private void showChanges() {
         ChangeHistoryRecord selectedRecord = changeRecordsTable.getSelectionModel().getSelectedItem();
-        if(Optional.ofNullable(selectedRecord).isEmpty()) {
+        if (Optional.ofNullable(selectedRecord).isEmpty()) {
             oldTextArea.setText("");
             newTextArea.setText("");
             return;
         }
 
-        if(Optional.ofNullable(selectedRecord.getOldValue()).isPresent()){
-            if(selectedRecord.getOldValue() instanceof WritableHistory item){
+        if (Optional.ofNullable(selectedRecord.getOldValue()).isPresent()) {
+            if (selectedRecord.getOldValue() instanceof WritableHistory item) {
                 oldTextArea.setText(item.stringGenerator().toString());
-            }
-            else oldTextArea.setText("Pogreška kod čitanja!");
-        }
-        else oldTextArea.setText("");
+            } else oldTextArea.setText("Pogreška kod čitanja!");
+        } else oldTextArea.setText("");
 
-        if(Optional.ofNullable(selectedRecord.getNewValue()).isPresent()){
-            if(selectedRecord.getNewValue() instanceof WritableHistory item){
+        if (Optional.ofNullable(selectedRecord.getNewValue()).isPresent()) {
+            if (selectedRecord.getNewValue() instanceof WritableHistory item) {
                 newTextArea.setText(item.stringGenerator().toString());
-            }
-            else newTextArea.setText("Pogreška kod čitanja!");
-        }
-        else newTextArea.setText("");
+            } else newTextArea.setText("Pogreška kod čitanja!");
+        } else newTextArea.setText("");
     }
 }

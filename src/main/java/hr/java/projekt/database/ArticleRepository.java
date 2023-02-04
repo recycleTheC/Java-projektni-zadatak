@@ -2,23 +2,21 @@ package hr.java.projekt.database;
 
 import hr.java.projekt.model.TaxRate;
 import hr.java.projekt.model.articles.*;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.sql.*;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.*;
 
 public class ArticleRepository implements Dao<Article> {
     @Override
     public Optional<Article> get(Long id) throws DatabaseException {
         Optional<Article> article = Optional.empty();
 
-        try (Connection db = Database.connectToDatabase()){
+        try (Connection db = Database.connectToDatabase()) {
             PreparedStatement query = db.prepareStatement("SELECT * FROM ARTICLES WHERE ID = ? LIMIT 1");
             query.setLong(1, id);
 
@@ -37,7 +35,7 @@ public class ArticleRepository implements Dao<Article> {
     public Optional<Article> get(String code) throws DatabaseException {
         Optional<Article> article = Optional.empty();
 
-        try (Connection db = Database.connectToDatabase()){
+        try (Connection db = Database.connectToDatabase()) {
             PreparedStatement query = db.prepareStatement("SELECT * FROM ARTICLES WHERE LOWER(CODE) = ? LIMIT 1");
             query.setString(1, code.toLowerCase());
 
@@ -57,7 +55,7 @@ public class ArticleRepository implements Dao<Article> {
     public List<Article> getMany() throws DatabaseException {
         List<Article> articles = new ArrayList<>();
 
-        try (Connection db = Database.connectToDatabase()){
+        try (Connection db = Database.connectToDatabase()) {
             PreparedStatement query = db.prepareStatement("SELECT * FROM ARTICLES");
             ResultSet result = query.executeQuery();
 
@@ -72,9 +70,9 @@ public class ArticleRepository implements Dao<Article> {
     }
 
     @Override
-    public void save(Article article) throws DatabaseException {
-        try (Connection db = Database.connectToDatabase()){
-            PreparedStatement query = db.prepareStatement("INSERT INTO ARTICLES (CODE, NAME, PRICE, TAX_RATE, TYPE, MEASURE, AVG_COST) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    public Long save(Article article) throws DatabaseException {
+        try (Connection db = Database.connectToDatabase()) {
+            PreparedStatement query = db.prepareStatement("INSERT INTO ARTICLES (CODE, NAME, PRICE, TAX_RATE, TYPE, MEASURE, AVG_COST) VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 
             query.setString(1, article.getCode());
             query.setString(2, article.getName());
@@ -83,10 +81,18 @@ public class ArticleRepository implements Dao<Article> {
             query.setInt(5, article.getType());
             query.setString(6, article.getMeasure());
 
-            if(article instanceof Service service) query.setBigDecimal(7, service.getCostOfService());
+            if (article instanceof Service service) query.setBigDecimal(7, service.getCostOfService());
             else query.setBigDecimal(7, null);
 
             query.executeUpdate();
+
+            try (ResultSet generatedKeys = query.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getLong(1);
+                } else {
+                    throw new SQLException("Neuspješno kreiranje konta! ID nije dohvaćen.");
+                }
+            }
         } catch (SQLException | IOException ex) {
             throw new DatabaseException("Greška kod spremanja artikla '" + article.getCode() + "'", ex);
         }
@@ -94,7 +100,7 @@ public class ArticleRepository implements Dao<Article> {
 
     @Override
     public void update(Long id, Article article) throws DatabaseException {
-        try (Connection db = Database.connectToDatabase()){
+        try (Connection db = Database.connectToDatabase()) {
             PreparedStatement query = db.prepareStatement("UPDATE ARTICLES SET CODE = ?, NAME = ?, PRICE = ?, TAX_RATE = ?, TYPE = ?, MEASURE = ?, AVG_COST = ? WHERE ID = ?");
 
             query.setString(1, article.getCode());
@@ -104,7 +110,7 @@ public class ArticleRepository implements Dao<Article> {
             query.setInt(5, article.getType());
             query.setString(6, article.getMeasure());
 
-            if(article instanceof Service service) query.setBigDecimal(7, service.getCostOfService());
+            if (article instanceof Service service) query.setBigDecimal(7, service.getCostOfService());
             else query.setBigDecimal(7, null);
 
             query.setLong(8, id);
@@ -117,7 +123,7 @@ public class ArticleRepository implements Dao<Article> {
 
     @Override
     public void delete(Article article) throws DatabaseException {
-        try (Connection db = Database.connectToDatabase()){
+        try (Connection db = Database.connectToDatabase()) {
             PreparedStatement query = db.prepareStatement("DELETE FROM ARTICLES WHERE ID = ?");
             query.setLong(1, article.getId());
             query.executeUpdate();
@@ -137,12 +143,33 @@ public class ArticleRepository implements Dao<Article> {
         BigDecimal averageCost = resultSet.getBigDecimal("AVG_COST");
         TaxRate taxRate = TaxRate.valueOf(resultSet.getString("TAX_RATE"));
 
-        if(type.equals(Asset.TYPE)){
+        if (type.equals(Asset.TYPE)) {
             return new AssetBuilder(id).setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(taxRate).setPurchasePrice(averageCost).build();
-        }
-        else if(type.equals(Service.TYPE)){
+        } else if (type.equals(Service.TYPE)) {
             return new ServiceBuilder(id).setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(taxRate).setCostOfService(averageCost).build();
+        } else throw new DatabaseException("Greška kod čitanja artikala iz baze podataka!");
+    }
+
+    public Map<Article, BigDecimal> getStock(LocalDate date) throws DatabaseException {
+        List<Article> articles = getMany().stream().filter(article -> article instanceof Asset).toList();
+        Map<Article, BigDecimal> results = new HashMap<>();
+
+        try (Connection db = Database.connectToDatabase()) {
+            PreparedStatement query = db.prepareStatement("SELECT ARTICLE_ID, (SUM(INPUT) - SUM(OUTPUT)) as 'STOCK' FROM JOURNAL_STORAGE WHERE DATE <= ? GROUP BY ARTICLE_ID");
+            query.setDate(1, Date.valueOf(date));
+            ResultSet resultSet = query.executeQuery();
+
+            while (resultSet.next()) {
+                Long articleId = resultSet.getLong("ARTICLE_ID");
+                BigDecimal stock = resultSet.getBigDecimal("STOCK");
+                Optional<Article> article = articles.stream().filter(a -> a.getId().equals(articleId)).findFirst();
+
+                article.ifPresent(value -> results.put(value, stock));
+            }
+        } catch (SQLException | IOException e) {
+            throw new DatabaseException("Greška prilikom dohvaćanja zaliha!", e);
         }
-        else throw new DatabaseException("Greška kod čitanja artikala iz baze podataka!");
+
+        return results;
     }
 }

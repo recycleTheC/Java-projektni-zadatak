@@ -31,8 +31,9 @@ public final class ArticleSelectionDialogController implements CanReturnTableVie
     private TableColumn<Article, BigDecimal> priceVATColumn;
     private static final Logger logger = LoggerFactory.getLogger(ArticleSelectionDialogController.class);
 
-    public void initialize(){
+    public void initialize() {
         ArticleRepository repository = new ArticleRepository();
+
         try {
             articleTableView.setItems(FXCollections.observableList(repository.getMany()));
         } catch (DatabaseException e) {

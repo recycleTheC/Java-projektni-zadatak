@@ -6,37 +6,41 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.java.projekt.app.MainController">
-   <children>
-      <MenuBar layoutY="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <menus>
-          <Menu mnemonicParsing="false" text="Osnovni podatci">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#showOsnovniPodatciView" text="Tvrtka" />
-                  <MenuItem mnemonicParsing="false" onAction="#showArticlesView" text="Artikli" />
-                  <MenuItem mnemonicParsing="false" onAction="#showPartnersView" text="Partneri" />
-                  <MenuItem mnemonicParsing="false" onAction="#showAccountsView" text="Konta" />
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false" text="Robno knjigovodstvo">
-              <items>
-                <MenuItem mnemonicParsing="false" text="Primka" />
-                  <MenuItem mnemonicParsing="false" text="Otpremnica" />
-              </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Prodaja">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="Račun" />
-                  <MenuItem mnemonicParsing="false" text="Račun-otpremnica" />
-               </items>
-            </Menu>
-          <Menu mnemonicParsing="false" text="Promjene">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#showChangesView" text="Pretraži promjene" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-      <TabPane fx:id="tabPane" layoutY="25.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0" />
-   </children>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+            prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="hr.java.projekt.app.MainController">
+    <children>
+        <MenuBar layoutY="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <menus>
+                <Menu mnemonicParsing="false" text="Osnovni podatci">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#showOsnovniPodatciView" text="Tvrtka"/>
+                        <MenuItem mnemonicParsing="false" onAction="#showArticlesView" text="Artikli"/>
+                        <MenuItem mnemonicParsing="false" onAction="#showPartnersView" text="Partneri"/>
+                        <MenuItem mnemonicParsing="false" onAction="#showAccountsView" text="Konta"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Robno knjigovodstvo">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#showAssetInputView" text="Primka"/>
+                        <MenuItem mnemonicParsing="false" text="Otpremnica"/>
+                        <MenuItem mnemonicParsing="false" text="Zaliha"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Prodaja">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Račun"/>
+                        <MenuItem mnemonicParsing="false" text="Račun-otpremnica"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Promjene">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#showChangesView" text="Pretraži promjene"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <TabPane fx:id="tabPane" layoutY="25.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0"
+                 AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0"/>
+    </children>
 </AnchorPane>

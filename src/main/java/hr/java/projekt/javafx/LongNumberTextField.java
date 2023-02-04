@@ -6,6 +6,7 @@ package hr.java.projekt.javafx;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TextField;
@@ -60,6 +61,7 @@ public class LongNumberTextField extends TextField {
 
         numberProperty().addListener((observable, oldValue, newValue) -> setText(numberFormat.format(newValue)));
     }
+
     private void parseAndFormatInput() {
         try {
             String input = getText();

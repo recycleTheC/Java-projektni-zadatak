@@ -25,7 +25,7 @@ public class MainController {
         scrollPane.setFitToHeight(true);
         Tab tab = new Tab(title, scrollPane);
 
-        if(fxmlLoader.getController() instanceof CanSetTabTitle controller){
+        if (fxmlLoader.getController() instanceof CanSetTabTitle controller) {
             controller.storeTabReference(tab);
         }
 
@@ -61,7 +61,12 @@ public class MainController {
     public void showPartnersView() throws IOException {
         showView("Partneri", PartnerEditorController.class.getResource("partner-editor.fxml"));
     }
+
     public void showAccountsView() throws IOException {
         showView("Konta", AccountEditorController.class.getResource("account-editor.fxml"));
+    }
+
+    public void showAssetInputView() throws IOException {
+        showView("Primka", AccountEditorController.class.getResource("asset_input-editor.fxml"));
     }
 }

@@ -9,6 +9,7 @@ import java.util.Properties;
 
 public class Database {
     private static final String DATABASE_PROPERTIES = "files/database.properties";
+
     static Connection connectToDatabase() throws IOException, SQLException {
         Properties settings = new Properties();
         settings.load(new FileReader(DATABASE_PROPERTIES));
@@ -17,6 +18,6 @@ public class Database {
         String user = settings.getProperty("DATABASE_USER");
         String password = settings.getProperty("DATABASE_PASSWORD");
 
-        return DriverManager.getConnection(databaseUrl,user,password);
+        return DriverManager.getConnection(databaseUrl, user, password);
     }
 }

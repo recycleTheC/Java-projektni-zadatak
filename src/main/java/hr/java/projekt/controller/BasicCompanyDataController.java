@@ -44,8 +44,7 @@ public class BasicCompanyDataController {
     public void initialize() {
         try {
             tvrtka = BasicCompanyDataFile.read();
-        }
-        catch (IOException | IBANValidationException | OIBValidationException ex){
+        } catch (IOException | IBANValidationException | OIBValidationException ex) {
             logger.error(ex.getMessage(), ex);
             MessageBox.show("Osnovni podatci", "KRITIČNA POGREŠKA", "Datoteka s osnovnim podatcima o tvrtki sadrži kritičnu pogrešku i nastavak rada nije moguć!\nPopravite datoteku ili prepišite sadržaj datoteke u nastavku!\n", ex);
             tvrtka = new BasicCompanyData();
@@ -62,22 +61,23 @@ public class BasicCompanyDataController {
         uSustavuPDVaBox.setValue(tvrtka.getRegisteredForVAT() ? "da" : "ne");
 
         oibField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
-            if(unfocused){
+            if (unfocused) {
                 checkOIBField();
             }
         });
 
         ibanField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
-            if(unfocused){
+            if (unfocused) {
                 checkIBANField();
             }
         });
     }
-    public void checkOIBField(){
+
+    public void checkOIBField() {
         String oib = oibField.getText();
 
         try {
-            if(!oib.isBlank()) {
+            if (!oib.isBlank()) {
                 OIBValidator.validate(oib);
                 oibField.setStyle("-fx-text-fill: green;");
             }
@@ -88,11 +88,11 @@ public class BasicCompanyDataController {
         }
     }
 
-    public void checkIBANField(){
+    public void checkIBANField() {
         String iban = ibanField.getText();
 
         try {
-            if(!iban.isBlank()){
+            if (!iban.isBlank()) {
                 IBANValidator.validate(iban);
                 ibanField.setStyle("-fx-text-fill: green;");
             }
@@ -103,7 +103,7 @@ public class BasicCompanyDataController {
         }
     }
 
-    public void saveData(){
+    public void saveData() {
         BasicCompanyData oldData = tvrtka;
         String naziv = nazivField.getText();
         String adresa = adresaField.getText();
@@ -114,23 +114,23 @@ public class BasicCompanyDataController {
 
         StringBuilder ispisPogreske = new StringBuilder();
 
-        if(naziv.isBlank()) {
+        if (naziv.isBlank()) {
             ispisPogreske.append("Nije upisan naziv tvrtke!\n");
         }
-        if(adresa.isBlank()){
+        if (adresa.isBlank()) {
             ispisPogreske.append("Nije upisana adresa tvrtke!\n");
         }
-        if(postanskiBrojMjesto.isBlank()){
+        if (postanskiBrojMjesto.isBlank()) {
             ispisPogreske.append("Nisu upisani poštanski broj i/ili mjesto tvrtke!\n");
         }
-        if(oib.isBlank()){
+        if (oib.isBlank()) {
             ispisPogreske.append("Nije upisan OIB tvrtke!\n");
         }
-        if(oib.isBlank()){
+        if (oib.isBlank()) {
             ispisPogreske.append("Nije upisan IBAN žiro računa tvrtke!\n");
         }
 
-        if(ispisPogreske.isEmpty()){
+        if (ispisPogreske.isEmpty()) {
             tvrtka = new BasicCompanyData(naziv, adresa, postanskiBrojMjesto);
             tvrtka.setDescription(opis);
             tvrtka.setRegisteredForVAT(uSustavuPDVaBox.getValue().compareTo("da") == 0);
@@ -141,20 +141,17 @@ public class BasicCompanyDataController {
 
                 BasicCompanyDataFile.write(tvrtka);
 
-                if(oldData != null) ChangeHistoryRecordFiles.write(new UpdatedChangeRecord<>(oldData, tvrtka));
+                if (oldData != null) ChangeHistoryRecordFiles.write(new UpdatedChangeRecord<>(oldData, tvrtka));
                 else ChangeHistoryRecordFiles.write(new CreatedChangeRecord<>(tvrtka));
 
                 MessageBox.show("Osnovni podatci", "Upis podataka", "Podatci su spremljeni!", Alert.AlertType.INFORMATION);
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 MessageBox.show("Osnovni podatci", "Upis podataka", "Podatci nisu spremljeni", Alert.AlertType.ERROR);
                 logger.error(e.getMessage(), e.getCause());
-            }
-            catch (IBANValidationException | OIBValidationException ex){
+            } catch (IBANValidationException | OIBValidationException ex) {
                 MessageBox.show("Osnovni podatci", "Upis podataka", "Podatci nisu spremljeni zbog pogreške u validaciji podataka!\n" + ex.getMessage(), Alert.AlertType.ERROR);
             }
-        }
-        else {
+        } else {
             MessageBox.show("Validacija podataka", "Nedostatak podataka", ispisPogreske.toString(), Alert.AlertType.ERROR);
         }
     }

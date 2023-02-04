@@ -7,9 +7,14 @@ import java.util.Optional;
 
 public interface Dao<T> {
     Optional<T> get(Long id) throws DatabaseException;
+
     List<T> getMany() throws DatabaseException;
-    void save(T t) throws DatabaseException;
+
+    Long save(T t) throws DatabaseException;
+
     void update(Long id, T t) throws DatabaseException;
+
     void delete(T t) throws DatabaseException;
+
     T mapResultSet(ResultSet resultSet) throws SQLException, DatabaseException;
 }

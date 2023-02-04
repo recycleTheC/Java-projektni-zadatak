@@ -1,5 +1,6 @@
 package hr.java.projekt.app;
 
+import hr.java.projekt.model.history.ChangeHistoryRecord;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -13,8 +14,8 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        Path changesPaths = Path.of("changes");
-        if(!Files.exists(changesPaths)){
+        Path changesPaths = Path.of(ChangeHistoryRecord.DATE_TIME_FORMAT);
+        if (!Files.exists(changesPaths)) {
             Files.createDirectory(changesPaths);
         }
 

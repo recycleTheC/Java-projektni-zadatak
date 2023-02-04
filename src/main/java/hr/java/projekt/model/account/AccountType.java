@@ -7,7 +7,8 @@ package hr.java.projekt.model.account;
 public enum AccountType {
     NO_ANALYTICS("nema analitike"),
     SUPPLIERS("dobavljači"),
-    BUYERS("kupci");
+    BUYERS("kupci"),
+    STORAGE("robno");
 
     private final String description;
     AccountType(String type) {

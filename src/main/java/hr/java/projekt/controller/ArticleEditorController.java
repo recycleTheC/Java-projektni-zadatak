@@ -50,6 +50,7 @@ public class ArticleEditorController implements CanSetTabTitle {
     private Optional<Article> savedItem;
     private Tab tab;
     private static final Logger logger = LoggerFactory.getLogger(ArticleEditorController.class);
+
     @FXML
     private void initialize() {
         savedItem = Optional.empty();
@@ -57,15 +58,16 @@ public class ArticleEditorController implements CanSetTabTitle {
         taxRateBox.setItems(FXCollections.observableArrayList(TaxRate.values()));
         taxRateBox.setConverter(CustomStringConverters.TaxRateStringConverter);
 
-        priceField.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0,Double.MAX_VALUE,0));
-        priceVATField.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0,Double.MAX_VALUE,0));
-        costField.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0,Double.MAX_VALUE,0));
+        priceField.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, Double.MAX_VALUE, 0));
+        priceVATField.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, Double.MAX_VALUE, 0));
+        costField.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, Double.MAX_VALUE, 0));
 
         priceField.valueProperty().addListener((object, oldValue, newValue) -> {
             BigDecimal price = BigDecimal.valueOf(object.getValue());
             BigDecimal rate = BigDecimal.ONE;
 
-            if(Optional.ofNullable(taxRateBox.getValue()).isPresent()) rate = taxRateBox.getValue().getRate().add(BigDecimal.ONE);
+            if (Optional.ofNullable(taxRateBox.getValue()).isPresent())
+                rate = taxRateBox.getValue().getRate().add(BigDecimal.ONE);
             priceVATField.getValueFactory().setValue(price.multiply(rate).doubleValue());
         });
 
@@ -73,12 +75,13 @@ public class ArticleEditorController implements CanSetTabTitle {
             BigDecimal priceVAT = BigDecimal.valueOf(object.getValue());
             BigDecimal rate = BigDecimal.ONE;
 
-            if(Optional.ofNullable(taxRateBox.getValue()).isPresent()) rate = taxRateBox.getValue().getRate().add(BigDecimal.ONE);
+            if (Optional.ofNullable(taxRateBox.getValue()).isPresent())
+                rate = taxRateBox.getValue().getRate().add(BigDecimal.ONE);
             priceField.getValueFactory().setValue(priceVAT.divide(rate, RoundingMode.HALF_UP).doubleValue());
         });
 
         taxRateBox.valueProperty().addListener((object, oldValue, newValue) -> {
-            if(Optional.ofNullable(taxRateBox.getValue()).isPresent()){
+            if (Optional.ofNullable(taxRateBox.getValue()).isPresent()) {
                 BigDecimal price = BigDecimal.valueOf(priceField.getValue());
                 BigDecimal rate = taxRateBox.getValue().getRate().add(BigDecimal.ONE);
                 priceVATField.getValueFactory().setValue(price.multiply(rate).doubleValue());
@@ -86,27 +89,27 @@ public class ArticleEditorController implements CanSetTabTitle {
         });
 
         codeField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
-            if(unfocused){
+            if (unfocused) {
                 try {
                     Optional<Article> article = articleRepository.get(codeField.getText());
                     article.ifPresent(this::setFields);
                 } catch (DatabaseException e) {
                     logger.error(e.getMessage(), e.getCause());
-                    MessageBox.show("Artikl","Pogreška u radu s bazom podataka", "Nije moguće napraviti provjeru u bazi podataka!\n" + e.getCause().getMessage());
+                    MessageBox.show("Artikl", "Pogreška u radu s bazom podataka", "Nije moguće napraviti provjeru u bazi podataka!\n" + e.getCause().getMessage());
                 }
             }
         });
 
         serviceRadio.focusedProperty().addListener(((observableValue, oldValue, newValue) -> {
-                costField.setVisible(true);
-                serviceLabel.setVisible(true);
-                costField.getValueFactory().setValue((double)0);
+            costField.setVisible(true);
+            serviceLabel.setVisible(true);
+            costField.getValueFactory().setValue((double) 0);
         }));
 
         assetRadio.focusedProperty().addListener(((observableValue, oldValue, newValue) -> {
-                costField.setVisible(false);
-                serviceLabel.setVisible(false);
-                costField.getValueFactory().setValue((double)0);
+            costField.setVisible(false);
+            serviceLabel.setVisible(false);
+            costField.getValueFactory().setValue((double) 0);
         }));
 
         deleteButton.setDisable(true);
@@ -119,7 +122,7 @@ public class ArticleEditorController implements CanSetTabTitle {
     }
 
     @FXML
-    private void saveArticle(){
+    private void saveArticle() {
         String code = codeField.getText();
         String name = nameField.getText();
         String measure = measureField.getText();
@@ -128,30 +131,29 @@ public class ArticleEditorController implements CanSetTabTitle {
 
         StringBuilder validationError = new StringBuilder();
 
-        if(code.isBlank()) validationError.append("Šifra artikla nije navedena!\n");
-        if(name.isBlank()) validationError.append("Naziv artikla nije naveden!\n");
-        if(measure.isBlank()) validationError.append("Mjerna jedinica za artikl nije navedena!\n");
-        if(price.equals(BigDecimal.ZERO)) validationError.append("Cijena artikla ne smije biti 0!\n");
-        if(Optional.ofNullable(rate).isEmpty()) validationError.append("Porezna stopa za artikl nije navedena!\n");
+        if (code.isBlank()) validationError.append("Šifra artikla nije navedena!\n");
+        if (name.isBlank()) validationError.append("Naziv artikla nije naveden!\n");
+        if (measure.isBlank()) validationError.append("Mjerna jedinica za artikl nije navedena!\n");
+        if (price.equals(BigDecimal.ZERO)) validationError.append("Cijena artikla ne smije biti 0!\n");
+        if (Optional.ofNullable(rate).isEmpty()) validationError.append("Porezna stopa za artikl nije navedena!\n");
 
-        if(!validationError.isEmpty()){
+        if (!validationError.isEmpty()) {
             MessageBox.show("Artikl", "Neispravne vrijednosti", validationError.toString(), Alert.AlertType.WARNING);
             return;
         }
 
         boolean confirmation = ConfirmationDialog.showDialog("Artikl", "Spremanje artikla", "Želite li spremiti artikl '" + code + "'?");
-        if(!confirmation) return;
+        if (!confirmation) return;
 
         Article article;
 
-        if(assetRadio.isSelected()){
+        if (assetRadio.isSelected()) {
             article = new AssetBuilder().setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(rate).build();
-        }
-        else {
+        } else {
             ServiceBuilder builder = new ServiceBuilder().setCode(code).setName(name).setMeasure(measure).setPrice(price).setTaxRate(rate);
             Double cost = costField.getValue();
 
-            if(Optional.ofNullable(cost).isPresent()){
+            if (Optional.ofNullable(cost).isPresent()) {
                 builder.setCostOfService(BigDecimal.valueOf(cost));
             }
 
@@ -159,11 +161,10 @@ public class ArticleEditorController implements CanSetTabTitle {
         }
 
         try {
-            if(savedItem.isPresent()) {
+            if (savedItem.isPresent()) {
                 articleRepository.update(savedItem.get().getId(), article);
                 new HistoryWriterThread<>(new UpdatedChangeRecord<>(savedItem.get(), article)).start();
-            }
-            else {
+            } else {
                 articleRepository.save(article);
                 new HistoryWriterThread<>(new CreatedChangeRecord<>(article)).start();
             }
@@ -177,10 +178,10 @@ public class ArticleEditorController implements CanSetTabTitle {
     }
 
     @FXML
-    private void deleteArticle(){
+    private void deleteArticle() {
         boolean result = ConfirmationDialog.showDialog("Artikl", "Brisanje artikla", "Jeste li sigurni da želite obrisati artikl '" + codeField.getText() + "'?");
 
-        if(result) {
+        if (result) {
             try {
                 articleRepository.delete(savedItem.get());
                 new HistoryWriterThread<>(new DeletedChangeRecord<>(savedItem.get())).start();
@@ -194,10 +195,10 @@ public class ArticleEditorController implements CanSetTabTitle {
     }
 
     @FXML
-    private void cancelEdit(){
-        if(savedItem.isEmpty() || codeField.getText().isEmpty()) return;
+    private void cancelEdit() {
+        if (savedItem.isEmpty() || codeField.getText().isEmpty()) return;
         boolean confirmation = ConfirmationDialog.showDialog("Artikl", "Odustajanje", "Jeste li sigurni da želite odustati od uređivanja artikla?");
-        if(confirmation) resetFields();
+        if (confirmation) resetFields();
     }
 
     @FXML
@@ -220,7 +221,7 @@ public class ArticleEditorController implements CanSetTabTitle {
         costField.getValueFactory().setValue((double) 0);
     }
 
-    private void setFields(Article article){
+    private void setFields(Article article) {
         setTabTitle("Artikl '" + article.getCode() + "'");
         savedItem = Optional.of(article);
         codeField.setText(article.getCode());
@@ -232,18 +233,18 @@ public class ArticleEditorController implements CanSetTabTitle {
         priceField.getValueFactory().setValue(article.getPrice().doubleValue());
         taxRateBox.getSelectionModel().select(article.getTaxRate());
 
-        if(article instanceof Asset) {
+        if (article instanceof Asset) {
             assetRadio.setSelected(true);
             costField.setVisible(false);
             serviceLabel.setVisible(false);
-        }
-        else if(article instanceof Service service) {
+        } else if (article instanceof Service service) {
             serviceRadio.setSelected(true);
             costField.setVisible(true);
             serviceLabel.setVisible(true);
             costField.getValueFactory().setValue(service.getCostOfService().doubleValue());
         }
     }
+
     @Override
     public void storeTabReference(Tab tab) {
         this.tab = tab;

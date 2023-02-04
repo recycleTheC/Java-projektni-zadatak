@@ -41,20 +41,21 @@ public final class AccountEditorController implements CanSetTabTitle {
     private Optional<Account> savedItem;
     private Tab tab;
     private static final Logger logger = LoggerFactory.getLogger(AccountEditorController.class);
+
     @FXML
     private void initialize() {
         savedItem = Optional.empty();
         accountRepository = new AccountRepository();
 
         codeField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
-            if(unfocused){
+            if (unfocused) {
                 try {
                     Long id = codeField.getNumber();
                     Optional<Account> account = accountRepository.get(id);
                     account.ifPresent(this::setFields);
                 } catch (DatabaseException e) {
                     logger.error(e.getMessage(), e.getCause());
-                    MessageBox.show("Konto","Pogreška u radu s bazom podataka", "Nije moguće napraviti provjeru u bazi podataka!\n" + e.getCause().getMessage());
+                    MessageBox.show("Konto", "Pogreška u radu s bazom podataka", "Nije moguće napraviti provjeru u bazi podataka!\n" + e.getCause().getMessage());
                 }
             }
         });
@@ -72,33 +73,32 @@ public final class AccountEditorController implements CanSetTabTitle {
     }
 
     @FXML
-    private void saveAction(){
+    private void saveAction() {
         String code = codeField.getText();
         String name = nameField.getText();
         AccountType type = accountTypeComboBox.getValue();
 
         StringBuilder validationError = new StringBuilder();
 
-        if(code.length() <= 1) validationError.append("Šifra konta nije navedena ili je neispravna!\n");
-        if(name.isBlank()) validationError.append("Naziv konta nije naveden!\n");
-        if(Optional.ofNullable(type).isEmpty()) validationError.append("Tip konta nije naveden!\n");
+        if (code.length() <= 1) validationError.append("Šifra konta nije navedena ili je neispravna!\n");
+        if (name.isBlank()) validationError.append("Naziv konta nije naveden!\n");
+        if (Optional.ofNullable(type).isEmpty()) validationError.append("Tip konta nije naveden!\n");
 
-        if(!validationError.isEmpty()){
+        if (!validationError.isEmpty()) {
             MessageBox.show("Konto", "Neispravne vrijednosti", validationError.toString(), Alert.AlertType.WARNING);
             return;
         }
 
         boolean confirmation = ConfirmationDialog.showDialog("Konto", "Spremanje konta", "Želite li spremiti konto '" + code + "'?");
-        if(!confirmation) return;
+        if (!confirmation) return;
 
         Account account = new AccountBuilder().setName(name).setCode(code).setType(type).build();
 
         try {
-            if(savedItem.isPresent()) {
+            if (savedItem.isPresent()) {
                 accountRepository.update(savedItem.get().getId(), account);
                 new HistoryWriterThread<>(new UpdatedChangeRecord<>(savedItem.get(), account)).start();
-            }
-            else {
+            } else {
                 accountRepository.save(account);
                 new HistoryWriterThread<>(new CreatedChangeRecord<>(account)).start();
             }
@@ -112,10 +112,10 @@ public final class AccountEditorController implements CanSetTabTitle {
     }
 
     @FXML
-    private void deleteAction(){
+    private void deleteAction() {
         boolean result = ConfirmationDialog.showDialog("Konto", "Brisanje konta", "Jeste li sigurni da želite obrisati konto '" + codeField.getText() + "'?");
 
-        if(result) {
+        if (result) {
             try {
                 accountRepository.delete(savedItem.get());
                 new HistoryWriterThread<>(new DeletedChangeRecord<>(savedItem.get())).start();
@@ -129,10 +129,10 @@ public final class AccountEditorController implements CanSetTabTitle {
     }
 
     @FXML
-    private void cancelEdit(){
-        if(savedItem.isEmpty() || codeField.getNumber() == 0) return;
+    private void cancelEdit() {
+        if (savedItem.isEmpty() || codeField.getNumber() == 0) return;
         boolean confirmation = ConfirmationDialog.showDialog("Konto", "Odustajanje", "Jeste li sigurni da želite odustati od uređivanja konta?");
-        if(confirmation) resetFields();
+        if (confirmation) resetFields();
     }
 
     @FXML
@@ -148,7 +148,7 @@ public final class AccountEditorController implements CanSetTabTitle {
         accountTypeComboBox.getSelectionModel().clearSelection();
     }
 
-    private void setFields(Account account){
+    private void setFields(Account account) {
         setTabTitle("Konto '" + account.getId() + "'");
         savedItem = Optional.of(account);
 
@@ -159,6 +159,7 @@ public final class AccountEditorController implements CanSetTabTitle {
         deleteButton.setDisable(false);
         codeField.setDisable(true);
     }
+
     @Override
     public void storeTabReference(Tab tab) {
         this.tab = tab;

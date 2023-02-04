@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane prefWidth="650.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="hr.java.projekt.controller.AssetInputSelectionDialogController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    </rowConstraints>
+    <children>
+        <TableView fx:id="assetInputTableView" prefHeight="290.0" prefWidth="450.0">
+            <columns>
+                <TableColumn fx:id="idColumn" prefWidth="76.0" text="Šifra"/>
+                <TableColumn fx:id="dateColumn" prefWidth="108.0" text="Datum primke"/>
+                <TableColumn fx:id="amountColumn" prefWidth="87.0" text="Iznos"/>
+                <TableColumn fx:id="supplierColumn" prefWidth="176.0" text="Dobavljač"/>
+                <TableColumn fx:id="invoiceIdColumn" prefWidth="85.0" text="Dokument"/>
+                <TableColumn fx:id="invoiceDateColumn" prefWidth="131.0" text="Datum dokumenta"/>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+        </TableView>
+    </children>
+</GridPane>

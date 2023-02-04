@@ -44,46 +44,46 @@ public final class PartnerEditorController implements CanSetTabTitle {
     private Optional<Business> savedItem;
     private Tab tab;
     private static final Logger logger = LoggerFactory.getLogger(PartnerEditorController.class);
+
     @FXML
     private void initialize() {
         savedItem = Optional.empty();
         partnerRepository = new BusinessRepository();
 
         idField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
-            if(unfocused){
+            if (unfocused) {
                 try {
                     Long id = idField.getNumber();
-                    if(id.equals(0L)) return;
+                    if (id.equals(0L)) return;
 
                     Optional<Business> business = partnerRepository.get(id);
 
-                    if(business.isPresent()){
+                    if (business.isPresent()) {
                         setFields(business.get());
-                    }else {
+                    } else {
                         boolean confirmation = ConfirmationDialog.showDialog("Partner", "Nepoznati partner", "Partner ne postoji u bazi podataka.\nŽelite li nastaviti unos za novog partnera?");
-                        if(confirmation) idField.setNumber(0L);
+                        if (confirmation) idField.setNumber(0L);
                     }
                 } catch (DatabaseException e) {
                     logger.error(e.getMessage(), e.getCause());
-                    MessageBox.show("Partner","Pogreška u radu s bazom podataka", "Nije moguće napraviti provjeru u bazi podataka!\n" + e.getCause().getMessage());
+                    MessageBox.show("Partner", "Pogreška u radu s bazom podataka", "Nije moguće napraviti provjeru u bazi podataka!\n" + e.getCause().getMessage());
                 }
             }
         });
 
         oibField.focusedProperty().addListener(((observableValue, oldValue, newValue) -> {
-            if(oldValue){
+            if (oldValue) {
                 String oib = oibField.getText();
-                try{
-                    if(!oib.isBlank()) OIBValidator.validate(oib);
-                }
-                catch (OIBValidationException ex){
+                try {
+                    if (!oib.isBlank()) OIBValidator.validate(oib);
+                } catch (OIBValidationException ex) {
                     MessageBox.show("Partner", "Neispravan OIB", ex.getMessage());
                 }
             }
         }));
 
         ibanField.focusedProperty().addListener(((observableValue, oldValue, newValue) -> {
-            if(oldValue) {
+            if (oldValue) {
                 String iban = ibanField.getText();
                 try {
                     if (!iban.isBlank()) IBANValidator.validate(iban);
@@ -103,7 +103,7 @@ public final class PartnerEditorController implements CanSetTabTitle {
     }
 
     @FXML
-    private void saveAction(){
+    private void saveAction() {
         String name = nameField.getText();
         String address = addressField.getText();
         String postal = postalField.getText();
@@ -112,42 +112,41 @@ public final class PartnerEditorController implements CanSetTabTitle {
 
         StringBuilder validationError = new StringBuilder();
 
-        if(name.isBlank()) validationError.append("Naziv partnera nije naveden!\n");
-        if(address.isBlank()) validationError.append("Adresa partnera nije navedena!\n");
-        if(postal.isBlank()) validationError.append("Poštanski broj i mjesto nije navedeno!\n");
-        if(oib.isBlank()) validationError.append("OIB nije naveden!\n");
+        if (name.isBlank()) validationError.append("Naziv partnera nije naveden!\n");
+        if (address.isBlank()) validationError.append("Adresa partnera nije navedena!\n");
+        if (postal.isBlank()) validationError.append("Poštanski broj i mjesto nije navedeno!\n");
+        if (oib.isBlank()) validationError.append("OIB nije naveden!\n");
         else {
-            try{
+            try {
                 OIBValidator.validate(oib);
             } catch (OIBValidationException e) {
                 validationError.append(e.getMessage()).append("\n");
             }
         }
-        if(iban.isBlank()) validationError.append("IBAN nije naveden!\n");
-        else{
-            try{
+        if (iban.isBlank()) validationError.append("IBAN nije naveden!\n");
+        else {
+            try {
                 IBANValidator.validate(iban);
             } catch (IBANValidationException e) {
                 validationError.append(e.getMessage()).append("\n");
             }
         }
 
-        if(!validationError.isEmpty()){
+        if (!validationError.isEmpty()) {
             MessageBox.show("Partner", "Neispravne vrijednosti", validationError.toString(), Alert.AlertType.WARNING);
             return;
         }
 
         boolean confirmation = ConfirmationDialog.showDialog("Partner", "Spremanje partnera", "Želite li spremiti partnera '" + name + "'?");
-        if(!confirmation) return;
+        if (!confirmation) return;
 
         Business partner = new BusinessBuilder().setName(name).setAddress(address).setPostalCodeAndTown(postal).setUncheckedOIB(oib).setUncheckedIBAN(iban).build();
 
         try {
-            if(savedItem.isPresent()) {
+            if (savedItem.isPresent()) {
                 partnerRepository.update(savedItem.get().getId(), partner);
                 new HistoryWriterThread<>(new UpdatedChangeRecord<>(savedItem.get(), partner)).start();
-            }
-            else {
+            } else {
                 partnerRepository.save(partner);
                 new HistoryWriterThread<>(new CreatedChangeRecord<>(partner)).start();
             }
@@ -161,10 +160,10 @@ public final class PartnerEditorController implements CanSetTabTitle {
     }
 
     @FXML
-    private void deleteAction(){
+    private void deleteAction() {
         boolean result = ConfirmationDialog.showDialog("Partner", "Brisanje partnera", "Jeste li sigurni da želite obrisati partnera '" + nameField.getText() + "'?");
 
-        if(result) {
+        if (result) {
             try {
                 partnerRepository.delete(savedItem.get());
                 new HistoryWriterThread<>(new DeletedChangeRecord<>(savedItem.get())).start();
@@ -178,10 +177,10 @@ public final class PartnerEditorController implements CanSetTabTitle {
     }
 
     @FXML
-    private void cancelEdit(){
-        if(savedItem.isEmpty() || idField.getNumber() != 0) return;
+    private void cancelEdit() {
+        if (savedItem.isEmpty() || idField.getNumber() != 0) return;
         boolean confirmation = ConfirmationDialog.showDialog("Partner", "Odustajanje", "Jeste li sigurni da želite odustati od uređivanja partnera?");
-        if(confirmation) resetFields();
+        if (confirmation) resetFields();
     }
 
     @FXML
@@ -200,7 +199,7 @@ public final class PartnerEditorController implements CanSetTabTitle {
         ibanField.setText(null);
     }
 
-    private void setFields(Business partner){
+    private void setFields(Business partner) {
         setTabTitle("Partner '" + partner.getId() + "'");
         savedItem = Optional.of(partner);
         idField.setNumber(partner.getId());
@@ -213,6 +212,7 @@ public final class PartnerEditorController implements CanSetTabTitle {
         oibField.setText(partner.getOIB());
         ibanField.setText(partner.getIBAN());
     }
+
     @Override
     public void storeTabReference(Tab tab) {
         this.tab = tab;

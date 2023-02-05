@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class HistoryController {
+    private static final Logger logger = LoggerFactory.getLogger(HistoryController.class);
     @FXML
     private DatePicker startDateField;
     @FXML
@@ -42,7 +43,6 @@ public class HistoryController {
     private TextArea oldTextArea;
     @FXML
     private TextArea newTextArea;
-    private static final Logger logger = LoggerFactory.getLogger(HistoryController.class);
 
     @FXML
     private void initialize() {
@@ -75,18 +75,23 @@ public class HistoryController {
             } else return new SimpleStringProperty("nepoznato");
         });
         identifierRecordColumn.setCellValueFactory(cell -> {
-            if (Optional.ofNullable(cell.getValue().getOldValue()).isPresent()) {
-                if (cell.getValue().getOldValue() instanceof WritableHistory item) {
-                    return new SimpleStringProperty(item.getIdentifier());
+            try {
+                if (Optional.ofNullable(cell.getValue().getOldValue()).isPresent()) {
+                    if (cell.getValue().getOldValue() instanceof WritableHistory item) {
+                        return new SimpleStringProperty(item.getIdentifier());
+                    }
+                } else if (Optional.ofNullable(cell.getValue().getNewValue()).isPresent()) {
+                    if (cell.getValue().getNewValue() instanceof WritableHistory item) {
+                        return new SimpleStringProperty(item.getIdentifier());
+                    }
                 }
-            } else if (Optional.ofNullable(cell.getValue().getNewValue()).isPresent()) {
-                if (cell.getValue().getNewValue() instanceof WritableHistory item) {
-                    return new SimpleStringProperty(item.getIdentifier());
-                }
+            } catch (NullPointerException e) {
+                return new SimpleStringProperty("pogreška kod čitanja");
             }
 
             return new SimpleStringProperty("nepoznato");
         });
+
         operatorRecordColumn.setCellValueFactory(cell -> new SimpleStringProperty("nepoznato"));
 
         try {

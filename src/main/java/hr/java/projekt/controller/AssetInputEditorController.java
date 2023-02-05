@@ -6,6 +6,8 @@ package hr.java.projekt.controller;
 
 import hr.java.projekt.database.AssetInputRepository;
 import hr.java.projekt.exceptions.DatabaseException;
+import hr.java.projekt.javafx.BigDecimalTextField;
+import hr.java.projekt.javafx.LongNumberTextField;
 import hr.java.projekt.model.Entity;
 import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.model.articles.Asset;
@@ -61,7 +63,7 @@ public class AssetInputEditorController implements CanSetTabTitle {
     @FXML
     private Spinner<Double> discountSpinner;
     @FXML
-    private TextField assetInputId;
+    private LongNumberTextField assetInputId;
     @FXML
     private DatePicker datePicker;
     @FXML
@@ -69,7 +71,7 @@ public class AssetInputEditorController implements CanSetTabTitle {
     @FXML
     private Text partnerLabel;
     @FXML
-    private TextField invoiceAmountField;
+    private BigDecimalTextField invoiceAmountField;
     @FXML
     private DatePicker invoiceDatePicker;
     @FXML
@@ -117,6 +119,19 @@ public class AssetInputEditorController implements CanSetTabTitle {
         quantitySpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, Double.MAX_VALUE, 0));
         priceSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, Double.MAX_VALUE, 0));
         discountSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, Double.MAX_VALUE, 0));
+
+        assetInputId.focusedProperty().addListener((observableValue, unfocused, focused) -> {
+            if (unfocused) {
+                try {
+                    Optional<AssetInput> selectedDocument = assetInputRepository.get(assetInputId.getNumber());
+                    selectedDocument.ifPresent(this::setFields);
+                } catch (DatabaseException ex) {
+                    MessageBox.show("Primka", "Pogreška u radu s bazom podataka", "Primka nije dohvaćena iz baze podataka!", ex);
+                }
+            }
+        });
+
+        invoiceAmountField.setNumber(BigDecimal.ZERO.setScale(2,RoundingMode.HALF_UP));
 
         document = Optional.empty();
         selectedPartner = Optional.empty();
@@ -200,12 +215,14 @@ public class AssetInputEditorController implements CanSetTabTitle {
     }
 
     private void resetFields() {
-        assetInputId.setText("");
+        assetInputId.setNumber(0L);
         datePicker.setValue(null);
         setTabTitle("Primka");
+        invoiceAmountField.setNumber(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP));
+        document = Optional.empty();
 
         selectedPartner = Optional.empty();
-        partnerLabel.setText("");
+        partnerLabel.setText("-");
         invoiceField.setText("");
         invoiceDatePicker.setValue(null);
 
@@ -244,10 +261,11 @@ public class AssetInputEditorController implements CanSetTabTitle {
         selectedPartner = Optional.of(assetInput.getSupplier());
         partnerLabel.setText(assetInput.getSupplier().getName());
         setTabTitle("Primka " + document.get().getId());
+        assetInputId.setNumber(assetInput.getId());
 
         invoiceField.setText(assetInput.getInvoiceId());
         invoiceDatePicker.setValue(assetInput.getInvoiceDate());
-        invoiceAmountField.setText(assetInput.getAmount().toString());
+        invoiceAmountField.setNumber(assetInput.getAmount());
         datePicker.setValue(assetInput.getInputDate());
 
         transactionTableView.getItems().clear();
@@ -307,7 +325,7 @@ public class AssetInputEditorController implements CanSetTabTitle {
 
         String invoiceId = invoiceField.getText();
         LocalDate invoiceDate = invoiceDatePicker.getValue();
-        BigDecimal invoiceAmount = new BigDecimal(invoiceAmountField.getText()).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal invoiceAmount = invoiceAmountField.getNumber();
 
         List<AssetInputTransaction> transactions = transactionTableView.getItems().parallelStream().toList();
         BigDecimal amount = AssetInput.getTransactionsTotalAmount(transactions);
@@ -349,7 +367,7 @@ public class AssetInputEditorController implements CanSetTabTitle {
             if (!confirmation) return;
 
             try {
-                Long documentId = document.map(Entity::getId).orElse(null);
+                Long documentId = document.map(Entity::getId).orElse(assetInputId.getNumber());
 
                 if (document.isPresent()) {
                     AssetInput assetInput = builder.setId(document.get().getId()).build();
@@ -357,8 +375,13 @@ public class AssetInputEditorController implements CanSetTabTitle {
                     new HistoryWriterThread<>(new UpdatedChangeRecord<>(document.get(), assetInput)).start();
                 } else {
                     AssetInput assetInput = builder.build();
-                    documentId = assetInputRepository.save(builder.build());
-                    assetInput.setId(documentId);
+
+                    if (documentId.equals(0L)) {
+                        documentId = assetInputRepository.save(assetInput);
+                    } else {
+                        assetInputRepository.save(documentId, assetInput);
+                    }
+
                     new HistoryWriterThread<>(new CreatedChangeRecord<>(assetInput)).start();
                 }
 

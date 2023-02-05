@@ -86,12 +86,16 @@ public class AssetInputRepository implements Dao<AssetInput> {
             try (ResultSet generatedKeys = insertDocumentQuery.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     documentId = generatedKeys.getLong(1);
+
+                    assetInput.setId(documentId);
                     saveAssetInputRows(db, documentId, assetInput.getTransactions());
                     saveIntoStorageJournal(db, assetInput.getTransactions());
                 } else {
                     throw new SQLException("Neuspješno kreiranje dokumenta! ID nije dohvaćen.");
                 }
             }
+
+            createFinancialTransaction(db, assetInput);
 
             db.commit();
             return documentId;
@@ -100,7 +104,33 @@ public class AssetInputRepository implements Dao<AssetInput> {
         }
     }
 
-    private void saveAssetInputRows(Connection db, Long documentId, List<AssetInputTransaction> transactions) throws SQLException, IOException {
+    public void save(Long id, AssetInput assetInput) throws DatabaseException {
+        if (Optional.ofNullable(assetInput.getId()).isEmpty())
+            assetInput.setId(id);
+
+        try (Connection db = Database.connectToDatabase()) {
+            db.setAutoCommit(false);
+
+            PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO ASSET_INPUT(ID, DATE, AMOUNT, INVOICE_ID, INVOICE_DATE, PARTNER_ID) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            insertDocumentQuery.setLong(1, id);
+            insertDocumentQuery.setDate(2, Date.valueOf(assetInput.getInputDate()));
+            insertDocumentQuery.setBigDecimal(3, assetInput.getAmount());
+            insertDocumentQuery.setString(4, assetInput.getInvoiceId());
+            insertDocumentQuery.setDate(5, Date.valueOf(assetInput.getInvoiceDate()));
+            insertDocumentQuery.setLong(6, assetInput.getSupplier().getId());
+            insertDocumentQuery.executeUpdate();
+
+            saveAssetInputRows(db, id, assetInput.getTransactions());
+            saveIntoStorageJournal(db, assetInput.getTransactions());
+            createFinancialTransaction(db, assetInput);
+
+            db.commit();
+        } catch (SQLException | IOException e) {
+            throw new DatabaseException("Došlo je do pogreške pri spremanju primke!", e);
+        }
+    }
+
+    private void saveAssetInputRows(Connection db, Long documentId, List<AssetInputTransaction> transactions) throws SQLException {
         int affectedRows = 0;
 
         for (AssetInputTransaction transaction : transactions) {
@@ -120,6 +150,14 @@ public class AssetInputRepository implements Dao<AssetInput> {
 
         if (affectedRows != transactions.size())
             throw new SQLException("Zapisi nisu uspješno uneseni u bazu podataka!");
+    }
+
+    private void updateAssetInputRows(Connection db, Long documentId, List<AssetInputTransaction> transactions) throws SQLException {
+        PreparedStatement deleteTransactionsQuery = db.prepareStatement("DELETE FROM ASSET_INPUT_TRANSACTIONS WHERE ASSET_INPUT_ID = ?");
+        deleteTransactionsQuery.setLong(1, documentId);
+        deleteTransactionsQuery.executeUpdate();
+
+        saveAssetInputRows(db, documentId, transactions);
     }
 
     private void saveIntoStorageJournal(Connection db, List<AssetInputTransaction> transactions) throws SQLException {
@@ -143,10 +181,6 @@ public class AssetInputRepository implements Dao<AssetInput> {
         try (Connection db = Database.connectToDatabase()) {
             db.setAutoCommit(false);
 
-            PreparedStatement deleteTransactionsQuery = db.prepareStatement("DELETE FROM ASSET_INPUT_TRANSACTIONS WHERE ASSET_INPUT_ID = ?");
-            deleteTransactionsQuery.setLong(1, id);
-            deleteTransactionsQuery.executeUpdate();
-
             PreparedStatement updateDocumentQuery = db.prepareStatement("UPDATE ASSET_INPUT SET DATE = ?, AMOUNT = ?, PARTNER_ID = ?, INVOICE_ID = ?, INVOICE_DATE = ? WHERE ID = ?");
             updateDocumentQuery.setDate(1, Date.valueOf(assetInput.getInputDate()));
             updateDocumentQuery.setBigDecimal(2, assetInput.getAmount());
@@ -156,12 +190,40 @@ public class AssetInputRepository implements Dao<AssetInput> {
             updateDocumentQuery.setLong(6, id);
             updateDocumentQuery.executeUpdate();
 
-            saveAssetInputRows(db, id, assetInput.getTransactions());
+            updateFinancialTransaction(db, assetInput);
+            updateAssetInputRows(db, id, assetInput.getTransactions());
 
             db.commit();
         } catch (SQLException | IOException e) {
             throw new DatabaseException("Došlo je do pogreške pri spremanju primke!", e);
         }
+    }
+
+    private void createFinancialTransaction(Connection db, AssetInput assetInput) throws SQLException {
+        PreparedStatement createStorageFinancialTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, OWES = ?, DESCRIPTION = ?, ASSET_INPUT_ID = ?");
+        createStorageFinancialTransactionQuery.setString(1, "6600");
+        createStorageFinancialTransactionQuery.setDate(2, Date.valueOf(assetInput.getInputDate()));
+        createStorageFinancialTransactionQuery.setBigDecimal(3, assetInput.getTransactionsTotalAmount());
+        createStorageFinancialTransactionQuery.setString(4, "Primka " + assetInput.getId());
+        createStorageFinancialTransactionQuery.setLong(5, assetInput.getId());
+        createStorageFinancialTransactionQuery.executeUpdate();
+
+        PreparedStatement createPartnerFinancialTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, CLAIMS = ?, DESCRIPTION = ?, ASSET_INPUT_ID = ?, PARTNER_ID = ?");
+        createPartnerFinancialTransactionQuery.setString(1, "2240");
+        createPartnerFinancialTransactionQuery.setDate(2, Date.valueOf(assetInput.getInputDate()));
+        createPartnerFinancialTransactionQuery.setBigDecimal(3, assetInput.getTransactionsTotalAmount());
+        createPartnerFinancialTransactionQuery.setString(4, "Primka " + assetInput.getId());
+        createPartnerFinancialTransactionQuery.setLong(5, assetInput.getId());
+        createPartnerFinancialTransactionQuery.setLong(6, assetInput.getSupplier().getId());
+        createPartnerFinancialTransactionQuery.executeUpdate();
+    }
+
+    private void updateFinancialTransaction(Connection db, AssetInput assetInput) throws SQLException {
+        PreparedStatement deleteOldFinancialTransactionsQuery = db.prepareStatement("DELETE FROM JOURNAL_FINANCIAL WHERE ASSET_INPUT_ID = ?");
+        deleteOldFinancialTransactionsQuery.setLong(1, assetInput.getId());
+        deleteOldFinancialTransactionsQuery.executeUpdate();
+
+        createFinancialTransaction(db, assetInput);
     }
 
     @Override

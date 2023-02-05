@@ -18,7 +18,8 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<!--<?import hr.java.projekt.javafx.LongNumberTextField?>-->
+<?import hr.java.projekt.javafx.LongNumberTextField?>
+<?import hr.java.projekt.javafx.BigDecimalTextField?>
 
 <GridPane alignment="CENTER" minWidth="600.0" prefHeight="500.0" xmlns="http://javafx.com/javafx/19"
           xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.java.projekt.controller.AssetInputEditorController">
@@ -61,11 +62,11 @@
             </GridPane.margin>
             <children>
                 <Label text="Redni broj primke"/>
-                <TextField fx:id="assetInputId">
+                <LongNumberTextField fx:id="assetInputId">
                     <VBox.margin>
                         <Insets top="5.0"/>
                     </VBox.margin>
-                </TextField>
+                </LongNumberTextField>
             </children>
         </VBox>
         <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
@@ -111,7 +112,7 @@
                 <DatePicker fx:id="invoiceDatePicker" prefHeight="25.0" prefWidth="247.0" GridPane.columnIndex="2"
                             GridPane.rowIndex="1"/>
                 <Label text="Iznos robe" GridPane.columnIndex="3"/>
-                <TextField fx:id="invoiceAmountField" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                <BigDecimalTextField fx:id="invoiceAmountField" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
             </children>
             <GridPane.margin>
                 <Insets left="5.0" right="5.0"/>

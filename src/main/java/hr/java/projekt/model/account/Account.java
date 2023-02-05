@@ -62,4 +62,9 @@ public class Account extends Entity implements WritableHistory {
     public String getIdentifier() {
         return this.code;
     }
+
+    @Override
+    public String toString() {
+        return code + " - " + name + " - " + type.getDescription();
+    }
 }

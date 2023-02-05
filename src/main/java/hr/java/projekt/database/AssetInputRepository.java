@@ -4,7 +4,9 @@
 
 package hr.java.projekt.database;
 
+import hr.java.projekt.app.MainApplication;
 import hr.java.projekt.exceptions.DatabaseException;
+import hr.java.projekt.model.account.AccountParameters;
 import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.inventory.assetinput.AssetInput;
@@ -200,8 +202,14 @@ public class AssetInputRepository implements Dao<AssetInput> {
     }
 
     private void createFinancialTransaction(Connection db, AssetInput assetInput) throws SQLException {
+        Optional<String> stockAccount = MainApplication.getAccountParameter(AccountParameters.ASSET_INPUT_STOCK);
+        Optional<String> supplierAccount = MainApplication.getAccountParameter(AccountParameters.ASSET_INPUT_SUPPLIER);
+
+        if (supplierAccount.isEmpty() || stockAccount.isEmpty())
+            throw new SQLException("Parametri dokumenta nisu ispravni!");
+
         PreparedStatement createStorageFinancialTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, OWES = ?, DESCRIPTION = ?, ASSET_INPUT_ID = ?");
-        createStorageFinancialTransactionQuery.setString(1, "6600");
+        createStorageFinancialTransactionQuery.setString(1, stockAccount.get());
         createStorageFinancialTransactionQuery.setDate(2, Date.valueOf(assetInput.getInputDate()));
         createStorageFinancialTransactionQuery.setBigDecimal(3, assetInput.getTransactionsTotalAmount());
         createStorageFinancialTransactionQuery.setString(4, "Primka " + assetInput.getId());
@@ -209,7 +217,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
         createStorageFinancialTransactionQuery.executeUpdate();
 
         PreparedStatement createPartnerFinancialTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, CLAIMS = ?, DESCRIPTION = ?, ASSET_INPUT_ID = ?, PARTNER_ID = ?");
-        createPartnerFinancialTransactionQuery.setString(1, "2240");
+        createPartnerFinancialTransactionQuery.setString(1, supplierAccount.get());
         createPartnerFinancialTransactionQuery.setDate(2, Date.valueOf(assetInput.getInputDate()));
         createPartnerFinancialTransactionQuery.setBigDecimal(3, assetInput.getTransactionsTotalAmount());
         createPartnerFinancialTransactionQuery.setString(4, "Primka " + assetInput.getId());

@@ -69,4 +69,8 @@ public class MainController {
     public void showAssetInputView() throws IOException {
         showView("Primka", AccountEditorController.class.getResource("asset_input-editor.fxml"));
     }
+
+    public void showDefaultParametersEditor() throws IOException {
+        showView("Parametri dokumenata", DefaultDocumentParametersController.class.getResource("default_accounts_editor.fxml"));
+    }
 }

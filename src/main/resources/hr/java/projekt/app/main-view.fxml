@@ -18,6 +18,7 @@
                         <MenuItem mnemonicParsing="false" onAction="#showArticlesView" text="Artikli"/>
                         <MenuItem mnemonicParsing="false" onAction="#showPartnersView" text="Partneri"/>
                         <MenuItem mnemonicParsing="false" onAction="#showAccountsView" text="Konta"/>
+                        <MenuItem mnemonicParsing="false" onAction="#showDefaultParametersEditor" text="Parametri dokumenata"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Robno knjigovodstvo">

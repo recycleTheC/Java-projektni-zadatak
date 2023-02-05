@@ -4,6 +4,7 @@
 
 package hr.java.projekt.database;
 
+import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.inventory.assetinput.AssetInput;

@@ -1,8 +1,8 @@
 package hr.java.projekt.model.business;
 
-import hr.java.projekt.util.validation.iban.IBANValidationException;
+import hr.java.projekt.exceptions.IBANValidationException;
 import hr.java.projekt.util.validation.iban.IBANValidator;
-import hr.java.projekt.util.validation.oib.OIBValidationException;
+import hr.java.projekt.exceptions.OIBValidationException;
 import hr.java.projekt.util.validation.oib.OIBValidator;
 
 public class BusinessBuilder {

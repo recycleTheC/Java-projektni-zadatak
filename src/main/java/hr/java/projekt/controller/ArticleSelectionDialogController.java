@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2023. Mario Kopjar, Zagreb University of Applied Sciences
+ */
+
 package hr.java.projekt.controller;
 
 import hr.java.projekt.database.ArticleRepository;
-import hr.java.projekt.database.DatabaseException;
+import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.util.dialog.CanReturnTableViewSelection;
 import hr.java.projekt.util.dialog.MessageBox;

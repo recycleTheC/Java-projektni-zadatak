@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2023. Mario Kopjar, Zagreb University of Applied Sciences
+ */
+
 package hr.java.projekt.database;
+
+import hr.java.projekt.exceptions.DatabaseException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

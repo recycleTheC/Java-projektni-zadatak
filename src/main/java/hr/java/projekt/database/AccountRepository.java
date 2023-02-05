@@ -4,6 +4,7 @@
 
 package hr.java.projekt.database;
 
+import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.account.Account;
 import hr.java.projekt.model.account.AccountBuilder;
 import hr.java.projekt.model.account.AccountType;

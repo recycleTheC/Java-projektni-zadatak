@@ -1,7 +1,7 @@
 package hr.java.projekt.controller;
 
 import hr.java.projekt.database.ArticleRepository;
-import hr.java.projekt.database.DatabaseException;
+import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.TaxRate;
 import hr.java.projekt.model.articles.*;
 import hr.java.projekt.model.history.*;

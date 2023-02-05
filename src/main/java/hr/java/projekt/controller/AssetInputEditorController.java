@@ -5,7 +5,7 @@
 package hr.java.projekt.controller;
 
 import hr.java.projekt.database.AssetInputRepository;
-import hr.java.projekt.database.DatabaseException;
+import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.Entity;
 import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.model.articles.Asset;

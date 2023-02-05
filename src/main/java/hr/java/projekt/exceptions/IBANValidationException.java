@@ -1,6 +1,10 @@
-package hr.java.projekt.util.validation.iban;
+/*
+ * Copyright (c) 2023. Mario Kopjar, Zagreb University of Applied Sciences
+ */
 
-public class IBANValidationException extends Exception{
+package hr.java.projekt.exceptions;
+
+public class IBANValidationException extends RuntimeException {
     public IBANValidationException() {
     }
 

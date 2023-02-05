@@ -1,7 +1,7 @@
 package hr.java.projekt.controller;
 
 import hr.java.projekt.database.BusinessRepository;
-import hr.java.projekt.database.DatabaseException;
+import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.javafx.LongNumberTextField;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.business.BusinessBuilder;
@@ -12,9 +12,9 @@ import hr.java.projekt.threads.HistoryWriterThread;
 import hr.java.projekt.util.dialog.ConfirmationDialog;
 import hr.java.projekt.util.dialog.MessageBox;
 import hr.java.projekt.util.dialog.SelectionDialog;
-import hr.java.projekt.util.validation.iban.IBANValidationException;
+import hr.java.projekt.exceptions.IBANValidationException;
 import hr.java.projekt.util.validation.iban.IBANValidator;
-import hr.java.projekt.util.validation.oib.OIBValidationException;
+import hr.java.projekt.exceptions.OIBValidationException;
 import hr.java.projekt.util.validation.oib.OIBValidator;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;

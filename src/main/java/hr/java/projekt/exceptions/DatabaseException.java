@@ -1,4 +1,8 @@
-package hr.java.projekt.database;
+/*
+ * Copyright (c) 2023. Mario Kopjar, Zagreb University of Applied Sciences
+ */
+
+package hr.java.projekt.exceptions;
 
 public class DatabaseException extends Exception {
     public DatabaseException() {

@@ -5,7 +5,7 @@
 package hr.java.projekt.controller;
 
 import hr.java.projekt.database.AccountRepository;
-import hr.java.projekt.database.DatabaseException;
+import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.account.Account;
 import hr.java.projekt.util.dialog.CanReturnTableViewSelection;
 import hr.java.projekt.util.dialog.MessageBox;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023. Mario Kopjar, Zagreb University of Applied Sciences
+ */
+
 package hr.java.projekt.database;
 
 import java.io.FileReader;

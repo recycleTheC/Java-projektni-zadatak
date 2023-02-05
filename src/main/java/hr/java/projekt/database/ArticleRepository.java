@@ -1,8 +1,8 @@
 package hr.java.projekt.database;
 
+import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.TaxRate;
 import hr.java.projekt.model.articles.*;
-import javafx.util.Pair;
 
 import java.io.IOException;
 import java.math.BigDecimal;

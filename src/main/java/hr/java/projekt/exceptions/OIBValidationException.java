@@ -1,6 +1,10 @@
-package hr.java.projekt.util.validation.oib;
+/*
+ * Copyright (c) 2023. Mario Kopjar, Zagreb University of Applied Sciences
+ */
 
-public class OIBValidationException extends Exception {
+package hr.java.projekt.exceptions;
+
+public class OIBValidationException extends RuntimeException {
     public OIBValidationException() {
     }
 

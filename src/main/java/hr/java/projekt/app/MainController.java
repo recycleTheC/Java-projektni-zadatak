@@ -73,4 +73,8 @@ public class MainController {
     public void showDefaultParametersEditor() throws IOException {
         showView("Parametri dokumenata", DefaultDocumentParametersController.class.getResource("default_accounts_editor.fxml"));
     }
+
+    public void showStockView() throws IOException {
+        showView("Stanje zaliha", StockViewController.class.getResource("stock-view.fxml"));
+    }
 }

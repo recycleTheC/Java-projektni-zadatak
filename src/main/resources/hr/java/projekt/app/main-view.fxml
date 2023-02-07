@@ -25,7 +25,7 @@
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#showAssetInputView" text="Primka"/>
                         <MenuItem mnemonicParsing="false" text="Otpremnica"/>
-                        <MenuItem mnemonicParsing="false" text="Zaliha"/>
+                        <MenuItem mnemonicParsing="false" onAction="#showStockView" text="Zaliha"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Prodaja">

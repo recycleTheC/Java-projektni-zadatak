@@ -7,9 +7,10 @@ import hr.java.projekt.model.articles.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
-import java.sql.Date;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class ArticleRepository implements Dao<Article> {
     @Override
@@ -150,26 +151,40 @@ public class ArticleRepository implements Dao<Article> {
         } else throw new DatabaseException("Greška kod čitanja artikala iz baze podataka!");
     }
 
-    public Map<Article, BigDecimal> getStock(LocalDate date) throws DatabaseException {
+    public List<ArticleStock> getStock(LocalDate date) throws DatabaseException {
         List<Article> articles = getMany().stream().filter(article -> article instanceof Asset).toList();
-        Map<Article, BigDecimal> results = new HashMap<>();
+        List<ArticleStock> results = new ArrayList<>();
 
-        try (Connection db = Database.connectToDatabase()) {
-            PreparedStatement query = db.prepareStatement("SELECT ARTICLE_ID, (SUM(INPUT) - SUM(OUTPUT)) as 'STOCK' FROM JOURNAL_STORAGE WHERE DATE <= ? GROUP BY ARTICLE_ID");
-            query.setDate(1, Date.valueOf(date));
-            ResultSet resultSet = query.executeQuery();
-
-            while (resultSet.next()) {
-                Long articleId = resultSet.getLong("ARTICLE_ID");
-                BigDecimal stock = resultSet.getBigDecimal("STOCK");
-                Optional<Article> article = articles.stream().filter(a -> a.getId().equals(articleId)).findFirst();
-
-                article.ifPresent(value -> results.put(value, stock));
-            }
-        } catch (SQLException | IOException e) {
-            throw new DatabaseException("Greška prilikom dohvaćanja zaliha!", e);
+        for (Article article : articles) {
+            results.add(getStock(article, date));
         }
 
         return results;
+    }
+
+    public ArticleStock getStock(Article article, LocalDate date) throws DatabaseException {
+        try (Connection db = Database.connectToDatabase()) {
+            PreparedStatement query = db.prepareStatement(
+                    "SELECT " +
+                            "(SUM(INPUT) - SUM(OUTPUT)) as \"STOCK\", " +
+                            "CASEWHEN(SUM(INPUT) <> 0, (SUM(OWES) / (SUM(INPUT))), 0) as \"AVERAGE_PRICE\"" +
+                            "FROM JOURNAL_STORAGE " +
+                            "WHERE DATE <= ? AND ARTICLE_ID = ?" +
+                            "GROUP BY ARTICLE_ID"
+            );
+            query.setDate(1, Date.valueOf(date));
+            query.setLong(2, article.getId());
+
+            ResultSet resultSet = query.executeQuery();
+
+            if (resultSet.next()) {
+                BigDecimal stock = resultSet.getBigDecimal("STOCK");
+                BigDecimal averagePurchasePrice = resultSet.getBigDecimal("AVERAGE_PRICE");
+
+                return new ArticleStock(article, stock, averagePurchasePrice);
+            } else return new ArticleStock(article, BigDecimal.ZERO, BigDecimal.ZERO);
+        } catch (SQLException | IOException e) {
+            throw new DatabaseException("Greška prilikom dohvaćanja zaliha!", e);
+        }
     }
 }

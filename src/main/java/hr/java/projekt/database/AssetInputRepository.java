@@ -16,6 +16,7 @@ import hr.java.projekt.model.inventory.assetinput.AssetInputTransaction;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -91,7 +92,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
 
                     assetInput.setId(documentId);
                     saveAssetInputRows(db, documentId, assetInput.getTransactions());
-                    saveIntoStorageJournal(db, assetInput.getTransactions());
+                    saveIntoStorageJournal(db, documentId, assetInput.getInputDate(), assetInput.getTransactions());
                 } else {
                     throw new SQLException("Neuspješno kreiranje dokumenta! ID nije dohvaćen.");
                 }
@@ -123,7 +124,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
             insertDocumentQuery.executeUpdate();
 
             saveAssetInputRows(db, id, assetInput.getTransactions());
-            saveIntoStorageJournal(db, assetInput.getTransactions());
+            saveIntoStorageJournal(db, id, assetInput.getInputDate(), assetInput.getTransactions());
             createFinancialTransaction(db, assetInput);
 
             db.commit();
@@ -162,20 +163,29 @@ public class AssetInputRepository implements Dao<AssetInput> {
         saveAssetInputRows(db, documentId, transactions);
     }
 
-    private void saveIntoStorageJournal(Connection db, List<AssetInputTransaction> transactions) throws SQLException {
+    private void saveIntoStorageJournal(Connection db, Long assetInputId, LocalDate date, List<AssetInputTransaction> transactions) throws SQLException {
         int affectedRows = 0;
 
         for (AssetInputTransaction transaction : transactions) {
-            PreparedStatement insertQuery = db.prepareStatement("INSERT INTO JOURNAL_STORAGE(ARTICLE_ID, ASSET_INPUT_ID, INPUT, OWES) VALUES (?, ?, ?, ?)");
+            PreparedStatement insertQuery = db.prepareStatement("INSERT INTO JOURNAL_STORAGE(ARTICLE_ID, ASSET_INPUT_ID, INPUT, OWES, DATE) VALUES (?, ?, ?, ?, ?)");
             insertQuery.setLong(1, transaction.getArticle().getId());
-            insertQuery.setLong(2, transaction.getId());
+            insertQuery.setLong(2, assetInputId);
             insertQuery.setBigDecimal(3, transaction.getQuantity());
             insertQuery.setBigDecimal(4, transaction.getTotal());
+            insertQuery.setDate(5, Date.valueOf(date));
             affectedRows += insertQuery.executeUpdate();
         }
 
         if (affectedRows != transactions.size())
             throw new SQLException("Zapisi nisu uspješno uneseni u bazu podataka!");
+    }
+
+    private void updateStorageJournal(Connection db, Long assetInputId, LocalDate date, List<AssetInputTransaction> transactions) throws SQLException {
+        PreparedStatement deleteQuery = db.prepareStatement("DELETE FROM JOURNAL_STORAGE WHERE ASSET_INPUT_ID = ?");
+        deleteQuery.setLong(1, assetInputId);
+        deleteQuery.executeUpdate();
+
+        saveIntoStorageJournal(db, assetInputId, date, transactions);
     }
 
     @Override
@@ -193,6 +203,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
             updateDocumentQuery.executeUpdate();
 
             updateFinancialTransaction(db, assetInput);
+            updateStorageJournal(db, id, assetInput.getInputDate(), assetInput.getTransactions());
             updateAssetInputRows(db, id, assetInput.getTransactions());
 
             db.commit();

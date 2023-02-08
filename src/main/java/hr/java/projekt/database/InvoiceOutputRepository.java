@@ -351,4 +351,21 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
 
         return builder.build();
     }
+
+    public List<InvoiceOutput> getDueInvoices() throws DatabaseException {
+        List<InvoiceOutput> invoices = new ArrayList<>();
+
+        try (Connection db = Database.connectToDatabase()) {
+            PreparedStatement query = db.prepareStatement("SELECT ID, PARTNER_ID, INVOICE_DATE, DUE_DATE, DELIVERY_DATE, (AMOUNT-IFNULL((SELECT IFNULL(SUM(AMOUNT), 0) FROM PAYMENTS WHERE INVOICE_OUTPUT_ID = INVOICE_OUTPUT.ID GROUP BY INVOICE_OUTPUT_ID), 0)) as \"AMOUNT\" FROM INVOICE_OUTPUT WHERE DUE_DATE <= CURRENT_DATE");
+            ResultSet resultSet = query.executeQuery();
+
+            while (resultSet.next()){
+                invoices.add(mapResultSet(resultSet));
+            }
+        } catch (SQLException | IOException e) {
+            throw new DatabaseException("Došlo je do pogreške pri dohvatu računa!", e);
+        }
+
+        return invoices;
+    }
 }

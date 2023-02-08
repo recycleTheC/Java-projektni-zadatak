@@ -6,24 +6,30 @@ package hr.java.projekt.threads;
 
 import hr.java.projekt.app.MainApplication;
 import hr.java.projekt.database.BusinessRepository;
+import hr.java.projekt.database.InvoiceOutputRepository;
 import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.business.Business;
+import hr.java.projekt.model.invoices.Invoice;
+import hr.java.projekt.model.invoices.InvoiceOutput;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.TableView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class BuyerTurnoverThread implements Runnable {
-    private static Logger logger = LoggerFactory.getLogger(BuyerTurnoverThread.class);
+public class HomeScreenThread implements Runnable {
+    private static Logger logger = LoggerFactory.getLogger(HomeScreenThread.class);
     private final Thread thread;
-    private BarChart<String, Double> buyerChart;
+    private final BarChart<String, Double> buyerChart;
+    private final TableView<Invoice> dueInvoicesTable;
 
-    public BuyerTurnoverThread(BarChart<String, Double> buyerChart) {
+    public HomeScreenThread(BarChart<String, Double> buyerChart, TableView<Invoice> dueInvoicesTable) {
         this.buyerChart = buyerChart;
+        this.dueInvoicesTable = dueInvoicesTable;
         this.thread = new Thread(this);
         this.thread.setDaemon(true);
     }
@@ -35,6 +41,8 @@ public class BuyerTurnoverThread implements Runnable {
     @Override
     public void run() {
         BusinessRepository partnersRepository = new BusinessRepository();
+        InvoiceOutputRepository invoiceOutputRepository = new InvoiceOutputRepository();
+
         while (true) {
             while (!MainApplication.refreshHomeScreen) {
                 try {
@@ -65,10 +73,24 @@ public class BuyerTurnoverThread implements Runnable {
                     buyerChart.getData().clear();
                     buyerChart.getData().add(series);
                 });
+            } catch (DatabaseException e) {
+                logger.error(e.getMessage(), e);
+            }
 
-                MainApplication.refreshHomeScreen = false;
+            try {
+                List<InvoiceOutput> dueInvoices = invoiceOutputRepository.getDueInvoices();
+
+                Platform.runLater(() -> {
+                    dueInvoicesTable.setItems(FXCollections.observableArrayList(dueInvoices));
+                });
+            } catch (DatabaseException e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            MainApplication.refreshHomeScreen = false;
+            try {
                 Thread.sleep(1500);
-            } catch (InterruptedException | DatabaseException e) {
+            } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }
         }

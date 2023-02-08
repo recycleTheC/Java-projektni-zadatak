@@ -6,7 +6,12 @@ package hr.java.projekt.model.account;
 
 public enum AccountParameters {
     ASSET_INPUT_STOCK,
-    ASSET_INPUT_SUPPLIER;
+    ASSET_INPUT_SUPPLIER,
+    INVOICE_OUTPUT_BUYER,
+    INVOICE_OUTPUT_VAT,
+    INVOICE_OUTPUT_STOCK,
+    INVOICE_OUTPUT_PURCHASE_PRICE,
+    INVOICE_OUTPUT_REVENUE;
 
     AccountParameters() {
     }

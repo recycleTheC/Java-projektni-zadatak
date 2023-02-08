@@ -7,6 +7,7 @@ package hr.java.projekt.model.inventory.assetinput;
 import hr.java.projekt.model.Entity;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.history.WritableHistory;
+import hr.java.projekt.model.inventory.ArticleTransaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AssetInput extends Entity implements WritableHistory {
-    private List<AssetInputTransaction> transactions;
+    private List<ArticleTransaction> transactions;
     private Business supplier;
     private LocalDate inputDate, invoiceDate;
     private BigDecimal amount;
@@ -34,15 +35,15 @@ public class AssetInput extends Entity implements WritableHistory {
         this(null, supplier, inputDate, invoiceId, invoiceDate, amount);
     }
 
-    public List<AssetInputTransaction> getTransactions() {
+    public List<ArticleTransaction> getTransactions() {
         return transactions;
     }
 
-    public void setTransactions(List<AssetInputTransaction> transactions) {
+    public void setTransactions(List<ArticleTransaction> transactions) {
         this.transactions = transactions;
     }
 
-    public void insertTransaction(AssetInputTransaction transaction){
+    public void insertTransaction(ArticleTransaction transaction){
         this.transactions.add(transaction);
     }
 
@@ -86,10 +87,10 @@ public class AssetInput extends Entity implements WritableHistory {
         this.invoiceId = invoiceId;
     }
 
-    public static BigDecimal getTransactionsTotalAmount(List<AssetInputTransaction> transactions){
+    public static BigDecimal getTransactionsTotalAmount(List<ArticleTransaction> transactions){
         BigDecimal sum = new BigDecimal("0");
 
-        for(AssetInputTransaction transaction : transactions){
+        for(ArticleTransaction transaction : transactions){
             sum = sum.add(transaction.getTotal());
         }
 

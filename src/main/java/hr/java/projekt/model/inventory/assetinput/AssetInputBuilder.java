@@ -5,6 +5,7 @@
 package hr.java.projekt.model.inventory.assetinput;
 
 import hr.java.projekt.model.business.Business;
+import hr.java.projekt.model.inventory.ArticleTransaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,7 +19,7 @@ public class AssetInputBuilder {
     private String invoiceId;
     private LocalDate invoiceDate;
     private BigDecimal amount;
-    private List<AssetInputTransaction> transactions;
+    private List<ArticleTransaction> transactions;
 
     public AssetInputBuilder(){
         this.transactions = new ArrayList<>();
@@ -54,7 +55,7 @@ public class AssetInputBuilder {
         return this;
     }
 
-    public AssetInputBuilder setTransactions(List<AssetInputTransaction> transactions) {
+    public AssetInputBuilder setTransactions(List<ArticleTransaction> transactions) {
         this.transactions = transactions;
         return this;
     }

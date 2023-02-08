@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 public final class AccountEditorController implements CanSetTabTitle {
+    private static final Logger logger = LoggerFactory.getLogger(AccountEditorController.class);
     @FXML
     private LongNumberTextField codeField;
     @FXML
@@ -36,11 +37,9 @@ public final class AccountEditorController implements CanSetTabTitle {
     private ComboBox<AccountType> accountTypeComboBox;
     @FXML
     private Button deleteButton;
-
     private AccountRepository accountRepository;
     private Optional<Account> savedItem;
     private Tab tab;
-    private static final Logger logger = LoggerFactory.getLogger(AccountEditorController.class);
 
     @FXML
     private void initialize() {
@@ -50,8 +49,7 @@ public final class AccountEditorController implements CanSetTabTitle {
         codeField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
             if (unfocused) {
                 try {
-                    Long id = codeField.getNumber();
-                    Optional<Account> account = accountRepository.get(id);
+                    Optional<Account> account = accountRepository.get(codeField.getText());
                     account.ifPresent(this::setFields);
                 } catch (DatabaseException e) {
                     logger.error(e.getMessage(), e.getCause());

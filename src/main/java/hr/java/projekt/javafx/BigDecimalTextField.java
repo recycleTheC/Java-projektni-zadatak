@@ -49,6 +49,9 @@ public class BigDecimalTextField extends TextField {
     public BigDecimalTextField(BigDecimal value, NumberFormat nf) {
         super();
         this.numberFormat = nf;
+        this.numberFormat.setGroupingUsed(true);
+        this.numberFormat.setMaximumFractionDigits(2);
+        this.numberFormat.setMinimumFractionDigits(2);
         initHandlers();
         setNumber(value);
     }

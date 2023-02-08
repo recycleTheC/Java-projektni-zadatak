@@ -9,9 +9,9 @@ import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.account.AccountParameters;
 import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.model.business.Business;
+import hr.java.projekt.model.inventory.ArticleTransaction;
 import hr.java.projekt.model.inventory.assetinput.AssetInput;
 import hr.java.projekt.model.inventory.assetinput.AssetInputBuilder;
-import hr.java.projekt.model.inventory.assetinput.AssetInputTransaction;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -41,7 +41,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
                 ResultSet transactionsQueryResult = transactionsQuery.executeQuery();
 
                 while (transactionsQueryResult.next()) {
-                    AssetInputTransaction transaction = mapTransactionResultSet(transactionsQueryResult);
+                    ArticleTransaction transaction = mapTransactionResultSet(transactionsQueryResult);
                     document.insertTransaction(transaction);
                 }
 
@@ -75,7 +75,6 @@ public class AssetInputRepository implements Dao<AssetInput> {
     @Override
     public Long save(AssetInput assetInput) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()) {
-            Long documentId;
             db.setAutoCommit(false);
 
             PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO ASSET_INPUT(DATE, AMOUNT, INVOICE_ID, INVOICE_DATE, PARTNER_ID) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
@@ -88,7 +87,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
 
             try (ResultSet generatedKeys = insertDocumentQuery.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    documentId = generatedKeys.getLong(1);
+                    Long documentId = generatedKeys.getLong(1);
 
                     assetInput.setId(documentId);
                     saveAssetInputRows(db, documentId, assetInput.getTransactions());
@@ -101,7 +100,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
             createFinancialTransaction(db, assetInput);
 
             db.commit();
-            return documentId;
+            return assetInput.getId();
         } catch (SQLException | IOException e) {
             throw new DatabaseException("Došlo je do pogreške pri spremanju primke!", e);
         }
@@ -133,10 +132,10 @@ public class AssetInputRepository implements Dao<AssetInput> {
         }
     }
 
-    private void saveAssetInputRows(Connection db, Long documentId, List<AssetInputTransaction> transactions) throws SQLException {
+    private void saveAssetInputRows(Connection db, Long documentId, List<ArticleTransaction> transactions) throws SQLException {
         int affectedRows = 0;
 
-        for (AssetInputTransaction transaction : transactions) {
+        for (ArticleTransaction transaction : transactions) {
             PreparedStatement insertQuery = db.prepareStatement("INSERT INTO ASSET_INPUT_TRANSACTIONS(ASSET_INPUT_ID, ARTICLE_ID, QUANTITY, DISCOUNT, PRICE) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             insertQuery.setLong(1, documentId);
             insertQuery.setLong(2, transaction.getArticle().getId());
@@ -155,7 +154,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
             throw new SQLException("Zapisi nisu uspješno uneseni u bazu podataka!");
     }
 
-    private void updateAssetInputRows(Connection db, Long documentId, List<AssetInputTransaction> transactions) throws SQLException {
+    private void updateAssetInputRows(Connection db, Long documentId, List<ArticleTransaction> transactions) throws SQLException {
         PreparedStatement deleteTransactionsQuery = db.prepareStatement("DELETE FROM ASSET_INPUT_TRANSACTIONS WHERE ASSET_INPUT_ID = ?");
         deleteTransactionsQuery.setLong(1, documentId);
         deleteTransactionsQuery.executeUpdate();
@@ -163,10 +162,10 @@ public class AssetInputRepository implements Dao<AssetInput> {
         saveAssetInputRows(db, documentId, transactions);
     }
 
-    private void saveIntoStorageJournal(Connection db, Long assetInputId, LocalDate date, List<AssetInputTransaction> transactions) throws SQLException {
+    private void saveIntoStorageJournal(Connection db, Long assetInputId, LocalDate date, List<ArticleTransaction> transactions) throws SQLException {
         int affectedRows = 0;
 
-        for (AssetInputTransaction transaction : transactions) {
+        for (ArticleTransaction transaction : transactions) {
             PreparedStatement insertQuery = db.prepareStatement("INSERT INTO JOURNAL_STORAGE(ARTICLE_ID, ASSET_INPUT_ID, INPUT, OWES, DATE) VALUES (?, ?, ?, ?, ?)");
             insertQuery.setLong(1, transaction.getArticle().getId());
             insertQuery.setLong(2, assetInputId);
@@ -180,7 +179,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
             throw new SQLException("Zapisi nisu uspješno uneseni u bazu podataka!");
     }
 
-    private void updateStorageJournal(Connection db, Long assetInputId, LocalDate date, List<AssetInputTransaction> transactions) throws SQLException {
+    private void updateStorageJournal(Connection db, Long assetInputId, LocalDate date, List<ArticleTransaction> transactions) throws SQLException {
         PreparedStatement deleteQuery = db.prepareStatement("DELETE FROM JOURNAL_STORAGE WHERE ASSET_INPUT_ID = ?");
         deleteQuery.setLong(1, assetInputId);
         deleteQuery.executeUpdate();
@@ -280,7 +279,7 @@ public class AssetInputRepository implements Dao<AssetInput> {
         return builder.build();
     }
 
-    public AssetInputTransaction mapTransactionResultSet(ResultSet resultSet) throws SQLException, DatabaseException {
+    public ArticleTransaction mapTransactionResultSet(ResultSet resultSet) throws SQLException, DatabaseException {
         Long articleId = resultSet.getLong("ARTICLE_ID");
         BigDecimal quantity = resultSet.getBigDecimal("QUANTITY");
         BigDecimal discount = resultSet.getBigDecimal("DISCOUNT");
@@ -288,6 +287,6 @@ public class AssetInputRepository implements Dao<AssetInput> {
 
         Optional<Article> article = new ArticleRepository().get(articleId);
 
-        return new AssetInputTransaction(article.get(), quantity, discount, price);
+        return new ArticleTransaction(article.get(), quantity, discount, price);
     }
 }

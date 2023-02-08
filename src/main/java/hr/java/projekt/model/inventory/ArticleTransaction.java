@@ -2,7 +2,7 @@
  * Copyright (c) 2023. Mario Kopjar, Zagreb University of Applied Sciences
  */
 
-package hr.java.projekt.model.inventory.assetinput;
+package hr.java.projekt.model.inventory;
 
 import hr.java.projekt.model.Entity;
 import hr.java.projekt.model.articles.Article;
@@ -11,11 +11,11 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class AssetInputTransaction extends Entity implements Serializable {
+public class ArticleTransaction extends Entity implements Serializable {
     private Article article;
     private BigDecimal quantity, discount, price;
 
-    public AssetInputTransaction(Long id, Article article, BigDecimal quantity, BigDecimal discount, BigDecimal price) {
+    public ArticleTransaction(Long id, Article article, BigDecimal quantity, BigDecimal discount, BigDecimal price) {
         super(id);
         this.article = article;
         this.quantity = quantity.setScale(4, RoundingMode.HALF_UP);
@@ -23,7 +23,7 @@ public class AssetInputTransaction extends Entity implements Serializable {
         this.price = price.setScale(2, RoundingMode.HALF_UP);
     }
 
-    public AssetInputTransaction(Article article, BigDecimal quantity, BigDecimal discount, BigDecimal price) {
+    public ArticleTransaction(Article article, BigDecimal quantity, BigDecimal discount, BigDecimal price) {
         this(null, article, quantity, discount, price);
     }
 

@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<?import hr.java.projekt.javafx.LongNumberTextField?>
+<?import hr.java.projekt.javafx.BigDecimalTextField?>
+
+<GridPane alignment="CENTER" minWidth="600.0" prefHeight="680.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.java.projekt.controller.InvoiceOutputEditorController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" minWidth="300.0" prefWidth="300.0" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" minWidth="300.0" prefWidth="300.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints maxHeight="75.0" minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="95.0" minHeight="65.0" prefHeight="65.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="90.0" minHeight="75.0" prefHeight="75.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="80.0" minHeight="60.0" prefHeight="60.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="80.0" minHeight="60.0" prefHeight="60.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="180.0" minHeight="150.0" prefHeight="150.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="90.0" minHeight="85.0" prefHeight="85.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="250.0" minHeight="155.0" prefHeight="155.0" vgrow="SOMETIMES" />
+        <RowConstraints maxHeight="60.0" minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <children>
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Račun-otpremnica" textAlignment="CENTER" GridPane.halignment="CENTER">
+            <font>
+                <Font size="24.0" />
+            </font>
+        </Text>
+        <Button mnemonicParsing="false" onAction="#selectAction" prefHeight="43.0" prefWidth="139.0" text="Pretraga" GridPane.columnIndex="1" GridPane.halignment="CENTER">
+            <font>
+                <Font size="20.0" />
+            </font>
+            <graphic>
+                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../icons/baseline_search_black_24dp.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <VBox prefHeight="65.0" prefWidth="255.0" GridPane.rowIndex="1">
+            <GridPane.margin>
+                <Insets left="5.0" right="5.0" />
+            </GridPane.margin>
+            <children>
+                <Label text="Redni broj računa" />
+                <LongNumberTextField fx:id="invoiceIdField">
+                    <VBox.margin>
+                        <Insets top="5.0" />
+                    </VBox.margin>
+                </LongNumberTextField>
+            </children>
+        </VBox>
+        <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <GridPane.margin>
+                <Insets left="5.0" right="5.0" />
+            </GridPane.margin>
+            <children>
+                <Label text="Datum računa" />
+                <DatePicker fx:id="invoiceDatePicker" maxWidth="1.7976931348623157E308">
+                    <VBox.margin>
+                        <Insets top="5.0" />
+                    </VBox.margin>
+                </DatePicker>
+            </children>
+        </VBox>
+        <GridPane hgap="5.0" prefHeight="65.0" prefWidth="600.0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="33.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="192.0" minWidth="10.0" percentWidth="33.0" prefWidth="133.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="259.0" minWidth="10.0" percentWidth="33.0" prefWidth="142.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="194.0" spacing="10.0">
+                    <children>
+                        <Label text="Partner" />
+                        <Button mnemonicParsing="false" onAction="#selectPartner" text="Odaberi" />
+                    </children>
+                </HBox>
+                <Text fx:id="partnerLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="-" wrappingWidth="190.0" GridPane.rowIndex="1">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Text>
+                <Label text="Datum isporuke" GridPane.columnIndex="1" />
+                <Label text="Datum dospijeća" GridPane.columnIndex="2" />
+                <DatePicker fx:id="dueDatePicker" maxWidth="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <DatePicker fx:id="dateOfDeliveryPicker" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            </children>
+            <GridPane.margin>
+                <Insets left="5.0" right="5.0" />
+            </GridPane.margin>
+        </GridPane>
+        <GridPane hgap="5.0" style="-fx-border-color: black;" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.rowSpan="2">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <GridPane.margin>
+                <Insets bottom="10.0" top="10.0" />
+            </GridPane.margin>
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                    <children>
+                        <Label text="Artikl" />
+                        <Button mnemonicParsing="false" onAction="#selectArticle" text="Odaberi" />
+                    </children>
+                </HBox>
+                <Text fx:id="assetLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="-" wrappingWidth="145.0" GridPane.rowIndex="1">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Text>
+                <Label text="Cijena" GridPane.columnIndex="2" />
+                <Label layoutX="313.0" layoutY="21.0" text="Popust" GridPane.columnIndex="3" />
+                <Spinner fx:id="quantitySpinner" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Spinner fx:id="priceSpinner" editable="true" layoutX="165.0" layoutY="45.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                <Spinner fx:id="discountSpinner" editable="true" layoutX="313.0" layoutY="45.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                <Button fx:id="addRowButton" mnemonicParsing="false" onAction="#addRowToTable" text="Dodaj stavku" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                <Button fx:id="deleteRowButton" mnemonicParsing="false" onAction="#deleteRow" text="Obriši stavku" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                <Button fx:id="cancelRowButton" mnemonicParsing="false" onAction="#resetRow" text="Odbaci stavku" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+            <HBox spacing="5.0" GridPane.columnIndex="1">
+               <children>
+                  <Label text="Količina" />
+                  <Label fx:id="stockLabel" text="(stanje zaliha)" />
+               </children>
+            </HBox>
+            </children>
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </GridPane>
+        <TableView fx:id="transactionTableView" onMouseReleased="#setRow" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="5">
+            <columns>
+                <TableColumn fx:id="codeColumn" prefWidth="75.0" text="Šifra" />
+                <TableColumn fx:id="nameColumn" prefWidth="136.0" text="Naziv" />
+                <TableColumn fx:id="quantityColumn" prefWidth="89.0" text="Količina" />
+                <TableColumn fx:id="measureColumn" prefWidth="57.0" text="Mj. jed." />
+                <TableColumn fx:id="priceColumn" prefWidth="91.0" text="Cijena" />
+                <TableColumn fx:id="discountColumn" prefWidth="50.0" text="Popust" />
+                <TableColumn fx:id="amountColumn" prefWidth="101.0" text="Iznos" />
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+        </TableView>
+      <GridPane style="-fx-border-color: black;" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="PDV 25%:" GridPane.rowIndex="1" />
+              <Text fx:id="totalText" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="2" GridPane.halignment="RIGHT">
+                  <GridPane.margin>
+                      <Insets />
+                  </GridPane.margin>
+              </Text>
+            <Label text="Ukupno za platiti:" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin>
+            </Label>
+            <Label layoutX="10.0" layoutY="27.0" text="Osnovica:" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+            <Text fx:id="totalWithVATText" layoutX="283.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font></Text>
+            <Label layoutX="10.0" layoutY="19.0" text="PDV 13%:" GridPane.rowIndex="2" />
+            <Label layoutX="10.0" layoutY="31.0" text="PDV 5%:" GridPane.rowIndex="3" />
+            <Label layoutX="10.0" layoutY="43.0" text="Neoporezivo:" GridPane.rowIndex="4" />
+            <Text fx:id="vat25Text" layoutX="283.0" layoutY="21.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+            <Text fx:id="vat13Text" layoutX="206.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+            <Text fx:id="vat05Text" layoutX="206.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
+            <Text fx:id="vat00Text" layoutX="206.0" layoutY="59.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
+            <Text fx:id="vat25BasisText" layoutX="206.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+            <Text fx:id="vat13BasisText" layoutX="108.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+            <Text fx:id="vat05BasisText" layoutX="108.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
+            <Text fx:id="vat00BasisText" layoutX="108.0" layoutY="59.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0,00" textAlignment="RIGHT" wrappingWidth="95.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
+         </children>
+         <GridPane.margin>
+            <Insets bottom="2.0" left="5.0" top="2.0" />
+         </GridPane.margin>
+      </GridPane>
+      <VBox prefHeight="200.0" prefWidth="100.0" spacing="2.0" GridPane.rowIndex="7">
+         <children>
+            <Label text="Uplate po računu" />
+            <TableView fx:id="paymentTableView" onMouseReleased="#setPaymentRow" prefHeight="200.0" prefWidth="200.0">
+              <columns>
+                <TableColumn fx:id="paymentDateColumn" prefWidth="75.0" text="Datum plaćanja" />
+                <TableColumn fx:id="paymentAmountColumn" prefWidth="75.0" text="Iznos plaćanja" />
+              </columns>
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+            </TableView>
+            <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label fx:id="paymentLabel" text="0,00" textAlignment="RIGHT" />
+               </children>
+            </HBox>
+         </children>
+         <GridPane.margin>
+            <Insets top="20.0" />
+         </GridPane.margin>
+      </VBox>
+      <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
+         <children>
+            <Label text="Uređivanje uplata">
+               <padding>
+                  <Insets top="1.0" />
+               </padding>
+            </Label>
+            <HBox spacing="25.0" />
+            <GridPane>
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="25.0" />
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="75.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label text="Datum uplate" />
+                  <Label layoutX="10.0" layoutY="17.0" text="Iznos uplate" GridPane.rowIndex="1" />
+                  <DatePicker fx:id="paymentDatePicker" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
+                  <BigDecimalTextField fx:id="paymentAmountField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <FlowPane alignment="CENTER" columnHalignment="CENTER" hgap="10.0" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                     <children>
+                        <Button fx:id="addPaymentRowButton" mnemonicParsing="false" onAction="#addPaymentRowToTable" text="Dodaj uplatu">
+                           <font>
+                              <Font size="11.0" />
+                           </font></Button>
+                        <Button fx:id="deletePaymentRowButton" disable="true" mnemonicParsing="false" onAction="#deletePaymentRow" text="Obriši uplatu">
+                           <font>
+                              <Font size="11.0" />
+                           </font></Button>
+                        <Button fx:id="cancelPaymentRowButton" disable="true" mnemonicParsing="false" onAction="#resetPaymentRow" text="Odbaci uplatu">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </FlowPane>
+               </children>
+            </GridPane>
+         </children>
+         <GridPane.margin>
+            <Insets left="5.0" top="20.0" />
+         </GridPane.margin>
+      </VBox>
+        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="50" GridPane.columnSpan="2" GridPane.rowIndex="8">
+            <children>
+                <Button mnemonicParsing="false" onAction="#saveAction" style="-fx-base: lightblue;" text="Spremi" />
+                <Button mnemonicParsing="false" onAction="#cancelEdit" text="Odustani" />
+                <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#deleteAction" style="-fx-base: tomato;" text="Obriši" />
+            </children>
+         <padding>
+            <Insets top="10.0" />
+         </padding>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
+</GridPane>

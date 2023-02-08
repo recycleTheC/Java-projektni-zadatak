@@ -77,4 +77,8 @@ public class MainController {
     public void showStockView() throws IOException {
         showView("Stanje zaliha", StockViewController.class.getResource("stock-view.fxml"));
     }
+
+    public void showInvoiceOutputEditorView() throws IOException {
+        showView("Račun-otpremnica", StockViewController.class.getResource("invoice_output-editor.fxml"));
+    }
 }

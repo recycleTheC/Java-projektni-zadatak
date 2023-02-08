@@ -90,15 +90,15 @@
       <VBox layoutX="223.0" layoutY="174.0" prefHeight="200.0" prefWidth="100.0" spacing="2.0" style="-fx-border-color: transparent transparent transparent black; -fx-border-width: 2;" GridPane.columnIndex="1" GridPane.rowIndex="3">
          <children>
             <Label text="Potraživanja od kupaca (D)" />
-            <ComboBox prefWidth="150.0" />
+            <ComboBox fx:id="invoiceOutputBuyerComboBox" prefWidth="150.0" />
             <Label text="PDV po izdanim računima (P)" />
-            <ComboBox prefWidth="150.0" />
+            <ComboBox fx:id="invoiceOutputVATComboBox" prefWidth="150.0" />
             <Label layoutX="10.0" layoutY="56.0" text="Zalihe robe (P)" />
-            <ComboBox layoutX="10.0" layoutY="75.0" prefWidth="150.0" />
+            <ComboBox fx:id="invoiceOutputStockComboBox" layoutX="10.0" layoutY="75.0" prefWidth="150.0" />
             <Label layoutX="10.0" layoutY="102.0" text="Nabavna vrijednost robe (D)" />
-            <ComboBox layoutX="10.0" layoutY="121.0" prefWidth="150.0" />
+            <ComboBox fx:id="invoiceOutputPurchaseComboBox" layoutX="10.0" layoutY="121.0" prefWidth="150.0" />
             <Label layoutX="10.0" layoutY="148.0" text="Prihodi od prodaje robe (P)" />
-            <ComboBox layoutX="10.0" layoutY="167.0" prefWidth="150.0" />
+            <ComboBox fx:id="invoiceOutputRevenueComboBox" layoutX="10.0" layoutY="167.0" prefWidth="150.0" />
          </children>
          <GridPane.margin>
             <Insets bottom="5.0" right="5.0" top="5.0" />

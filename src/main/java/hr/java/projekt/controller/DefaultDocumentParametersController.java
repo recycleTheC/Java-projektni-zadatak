@@ -30,6 +30,16 @@ public class DefaultDocumentParametersController {
     private ComboBox<Account> assetInputStockComboBox;
     @FXML
     private ComboBox<Account> assetInputSupplierComboBox;
+    @FXML
+    private ComboBox<Account> invoiceOutputBuyerComboBox;
+    @FXML
+    private ComboBox<Account> invoiceOutputVATComboBox;
+    @FXML
+    private ComboBox<Account> invoiceOutputStockComboBox;
+    @FXML
+    private ComboBox<Account> invoiceOutputPurchaseComboBox;
+    @FXML
+    private ComboBox<Account> invoiceOutputRevenueComboBox;
     private List<Account> accounts;
 
     @FXML
@@ -37,14 +47,35 @@ public class DefaultDocumentParametersController {
         AccountRepository accountRepository = new AccountRepository();
         try {
             accounts = accountRepository.getMany();
+
             assetInputStockComboBox.setItems(FXCollections.observableArrayList(accounts));
             assetInputSupplierComboBox.setItems(FXCollections.observableArrayList(accounts));
+            invoiceOutputBuyerComboBox.setItems(FXCollections.observableArrayList(accounts));
+            invoiceOutputVATComboBox.setItems(FXCollections.observableArrayList(accounts));
+            invoiceOutputStockComboBox.setItems(FXCollections.observableArrayList(accounts));
+            invoiceOutputPurchaseComboBox.setItems(FXCollections.observableArrayList(accounts));
+            invoiceOutputRevenueComboBox.setItems(FXCollections.observableArrayList(accounts));
 
             Optional<String> assetInputStockParameter = MainApplication.getAccountParameter(AccountParameters.ASSET_INPUT_STOCK);
             setSelectedAccount(assetInputStockComboBox, assetInputStockParameter);
 
             Optional<String> assetInputSupplierParameter = MainApplication.getAccountParameter(AccountParameters.ASSET_INPUT_SUPPLIER);
             setSelectedAccount(assetInputSupplierComboBox, assetInputSupplierParameter);
+
+            Optional<String> invoiceOutputBuyerParameter = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_BUYER);
+            setSelectedAccount(invoiceOutputBuyerComboBox, invoiceOutputBuyerParameter);
+
+            Optional<String> invoiceOutputStockParameter = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_STOCK);
+            setSelectedAccount(invoiceOutputStockComboBox, invoiceOutputStockParameter);
+
+            Optional<String> invoiceOutputPurchaseParameter = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_PURCHASE_PRICE);
+            setSelectedAccount(invoiceOutputPurchaseComboBox, invoiceOutputPurchaseParameter);
+
+            Optional<String> invoiceOutputRevenueParameter = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_REVENUE);
+            setSelectedAccount(invoiceOutputRevenueComboBox, invoiceOutputRevenueParameter);
+
+            Optional<String> invoiceOutputVATParameter = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_VAT);
+            setSelectedAccount(invoiceOutputVATComboBox, invoiceOutputVATParameter);
         } catch (DatabaseException ex) {
             logger.error(ex.getMessage(), ex.getCause());
             MessageBox.show("Parametri dokumenata", "Greška pri radu s bazom podataka", "Dogodila se pogreška pri dohvatu kontnog plana iz baze podataka!", ex);
@@ -57,15 +88,22 @@ public class DefaultDocumentParametersController {
         Properties parameters = new Properties();
         parameters.load(new FileInputStream(parametersPath.toFile()));
 
-        if (Optional.ofNullable(assetInputStockComboBox.getValue()).isPresent())
-            parameters.setProperty(AccountParameters.ASSET_INPUT_STOCK.name(), assetInputStockComboBox.getValue().getCode());
-
-        if (Optional.ofNullable(assetInputSupplierComboBox.getValue()).isPresent())
-            parameters.setProperty(AccountParameters.ASSET_INPUT_SUPPLIER.name(), assetInputSupplierComboBox.getValue().getCode());
+        setParametersValue(parameters, AccountParameters.ASSET_INPUT_STOCK, assetInputStockComboBox);
+        setParametersValue(parameters, AccountParameters.ASSET_INPUT_SUPPLIER, assetInputSupplierComboBox);
+        setParametersValue(parameters, AccountParameters.INVOICE_OUTPUT_BUYER, invoiceOutputBuyerComboBox);
+        setParametersValue(parameters, AccountParameters.INVOICE_OUTPUT_VAT, invoiceOutputVATComboBox);
+        setParametersValue(parameters, AccountParameters.INVOICE_OUTPUT_STOCK, invoiceOutputStockComboBox);
+        setParametersValue(parameters, AccountParameters.INVOICE_OUTPUT_PURCHASE_PRICE, invoiceOutputPurchaseComboBox);
+        setParametersValue(parameters, AccountParameters.INVOICE_OUTPUT_REVENUE, invoiceOutputRevenueComboBox);
 
         parameters.save(new FileOutputStream(parametersPath.toFile()), null);
 
         MainApplication.loadParameters();
+    }
+
+    private void setParametersValue(Properties properties, AccountParameters parameter, ComboBox<Account> selectedAccount){
+        if (Optional.ofNullable(selectedAccount.getValue()).isPresent())
+            properties.setProperty(parameter.name(), selectedAccount.getValue().getCode());
     }
 
     private void setSelectedAccount(ComboBox<Account> comboBox, Optional<String> parameter) {

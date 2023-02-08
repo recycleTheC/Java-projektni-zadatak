@@ -14,9 +14,9 @@ import hr.java.projekt.model.articles.Asset;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.history.CreatedChangeRecord;
 import hr.java.projekt.model.history.UpdatedChangeRecord;
+import hr.java.projekt.model.inventory.ArticleTransaction;
 import hr.java.projekt.model.inventory.assetinput.AssetInput;
 import hr.java.projekt.model.inventory.assetinput.AssetInputBuilder;
-import hr.java.projekt.model.inventory.assetinput.AssetInputTransaction;
 import hr.java.projekt.threads.HistoryWriterThread;
 import hr.java.projekt.util.dialog.ConfirmationDialog;
 import hr.java.projekt.util.dialog.MessageBox;
@@ -41,21 +41,21 @@ import java.util.Optional;
 
 public class AssetInputEditorController implements CanSetTabTitle {
     @FXML
-    private TableView<AssetInputTransaction> transactionTableView;
+    private TableView<ArticleTransaction> transactionTableView;
     @FXML
-    private TableColumn<AssetInputTransaction, String> codeColumn;
+    private TableColumn<ArticleTransaction, String> codeColumn;
     @FXML
-    private TableColumn<AssetInputTransaction, String> nameColumn;
+    private TableColumn<ArticleTransaction, String> nameColumn;
     @FXML
-    private TableColumn<AssetInputTransaction, BigDecimal> quantityColumn;
+    private TableColumn<ArticleTransaction, BigDecimal> quantityColumn;
     @FXML
-    private TableColumn<AssetInputTransaction, BigDecimal> discountColumn;
+    private TableColumn<ArticleTransaction, BigDecimal> discountColumn;
     @FXML
-    private TableColumn<AssetInputTransaction, String> measureColumn;
+    private TableColumn<ArticleTransaction, String> measureColumn;
     @FXML
-    private TableColumn<AssetInputTransaction, BigDecimal> priceColumn;
+    private TableColumn<ArticleTransaction, BigDecimal> priceColumn;
     @FXML
-    private TableColumn<AssetInputTransaction, BigDecimal> amountColumn;
+    private TableColumn<ArticleTransaction, BigDecimal> amountColumn;
     @FXML
     private Spinner<Double> quantitySpinner;
     @FXML
@@ -112,7 +112,7 @@ public class AssetInputEditorController implements CanSetTabTitle {
         priceColumn.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getPrice()));
         amountColumn.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getTotal()));
 
-        transactionTableView.getItems().addListener((ListChangeListener<? super AssetInputTransaction>) observable -> {
+        transactionTableView.getItems().addListener((ListChangeListener<? super ArticleTransaction>) observable -> {
             totalText.setText(numberFormatter.format(AssetInput.getTransactionsTotalAmount(transactionTableView.getItems())));
         });
 
@@ -190,7 +190,7 @@ public class AssetInputEditorController implements CanSetTabTitle {
 
         if (validationError.isEmpty()) {
             int index = transactionTableView.getSelectionModel().getSelectedIndex();
-            AssetInputTransaction transaction = new AssetInputTransaction(selectedArticle.get(), quantity, discount, price);
+            ArticleTransaction transaction = new ArticleTransaction(selectedArticle.get(), quantity, discount, price);
 
             if (index == -1) transactionTableView.getItems().add(transaction);
             else transactionTableView.getItems().set(index, transaction);
@@ -232,7 +232,7 @@ public class AssetInputEditorController implements CanSetTabTitle {
 
     @FXML
     private void setRow() {
-        AssetInputTransaction transaction = transactionTableView.getSelectionModel().getSelectedItem();
+        ArticleTransaction transaction = transactionTableView.getSelectionModel().getSelectedItem();
 
         if (Optional.ofNullable(transaction).isPresent()) {
             selectedArticle = Optional.of(transaction.getArticle());
@@ -294,11 +294,10 @@ public class AssetInputEditorController implements CanSetTabTitle {
                 boolean confirmation = ConfirmationDialog.showDialog("Primka", "Brisanje primke", "Jeste li sigurni da želite obrisati Primku " + document.get().getId() + "?");
                 if (confirmation) {
                     assetInputRepository.delete(document.get());
+                    MessageBox.show("Primka ", "Brisanje primke", "Primka " + document.get().getId() + " je uspješno obrisana iz baze podataka.");
+
                     resetRow();
                     resetFields();
-
-                    MessageBox.show("Primka ", "Spremanje primke", "Primka " + document.get().getId() + " je uspješno obrisana iz baze podataka.");
-                    document = Optional.empty();
                 }
             } catch (DatabaseException ex) {
                 logger.error(ex.getMessage(), ex.getCause());
@@ -327,7 +326,7 @@ public class AssetInputEditorController implements CanSetTabTitle {
         LocalDate invoiceDate = invoiceDatePicker.getValue();
         BigDecimal invoiceAmount = invoiceAmountField.getNumber();
 
-        List<AssetInputTransaction> transactions = transactionTableView.getItems().parallelStream().toList();
+        List<ArticleTransaction> transactions = transactionTableView.getItems().parallelStream().toList();
         BigDecimal amount = AssetInput.getTransactionsTotalAmount(transactions);
 
         StringBuilder validationError = new StringBuilder();

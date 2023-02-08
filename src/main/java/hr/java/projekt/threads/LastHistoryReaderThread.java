@@ -28,6 +28,7 @@ public class LastHistoryReaderThread implements Runnable {
     public LastHistoryReaderThread(Label label) {
         this.label = label;
         this.thread = new Thread(this);
+        this.thread.setDaemon(true);
     }
 
     public void start() {

@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableStringValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.chart.BarChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -13,13 +14,13 @@ import javafx.scene.control.TabPane;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 
 public class MainController {
     @FXML
     private TabPane tabPane;
     @FXML
     private Label lastHistoryRecord;
-
 
     public void initialize() throws IOException {
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.SELECTED_TAB);

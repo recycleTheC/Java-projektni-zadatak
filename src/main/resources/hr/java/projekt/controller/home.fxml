@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<GridPane alignment="CENTER" prefHeight="400.0" minWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane alignment="CENTER" minWidth="600.0" prefHeight="400.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.java.projekt.controller.HomeController">
    <children>
       <VBox alignment="CENTER" minHeight="200.0" minWidth="200.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
          <GridPane.margin>
@@ -46,7 +46,7 @@
                   <Font name="System Bold Italic" size="14.0" />
                </font>
             </Label>
-            <BarChart>
+            <BarChart fx:id="buyerChart">
               <xAxis>
                 <CategoryAxis side="BOTTOM" />
               </xAxis>

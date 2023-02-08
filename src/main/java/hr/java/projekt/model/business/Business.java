@@ -95,4 +95,9 @@ public class Business extends Entity implements WritableHistory {
     public String getShortDescription() {
         return "Partner " + this.getId().toString();
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

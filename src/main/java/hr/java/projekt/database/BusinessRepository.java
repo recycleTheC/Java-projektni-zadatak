@@ -1,14 +1,18 @@
 package hr.java.projekt.database;
 
+import hr.java.projekt.app.MainApplication;
 import hr.java.projekt.exceptions.DatabaseException;
+import hr.java.projekt.model.account.AccountParameters;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.business.BusinessBuilder;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 public class BusinessRepository implements Dao<Business> {
     @Override
@@ -112,5 +116,27 @@ public class BusinessRepository implements Dao<Business> {
         builder.setUncheckedOIB(resultSet.getString("OIB"));
         builder.setUncheckedIBAN(resultSet.getString("IBAN"));
         return builder.build();
+    }
+
+    public Double getTurnoverForPartner(Long partnerId) throws DatabaseException {
+        try (Connection db = Database.connectToDatabase()) {
+            Optional<String> partnerAccount = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_BUYER);
+            PreparedStatement query = db.prepareStatement("SELECT SUM(OWES) as \"SUM\" FROM JOURNAL_FINANCIAL WHERE PARTNER_ID = ? AND ACCOUNT_CODE = ? AND OWES <> 0 AND CLAIMS = 0 AND (DATE BETWEEN ? AND ?) GROUP BY PARTNER_ID");
+
+            query.setLong(1, partnerId);
+            query.setString(2, partnerAccount.get());
+            LocalDate baseDate = LocalDate.now();
+            query.setDate(3, Date.valueOf(baseDate.withDayOfMonth(1)));
+            query.setDate(4, Date.valueOf(baseDate.with(lastDayOfMonth())));
+
+            ResultSet resultSet = query.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getDouble("SUM");
+            }
+            else return (double) 0;
+        } catch (SQLException | IOException e) {
+            throw new DatabaseException("Došlo je do pogreške pri dohvatu računa!", e);
+        }
     }
 }

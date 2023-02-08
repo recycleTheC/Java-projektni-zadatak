@@ -21,7 +21,7 @@ import java.util.Properties;
 public class MainApplication extends Application {
     private final static String PARAMETERS_URL = "files/parameters.properties";
     private static final Map<AccountParameters, String> accountParameters = new HashMap<>();
-    public static boolean historyWritingInProgress = false;
+    public static boolean historyWritingInProgress = false, refreshHomeScreen = true;
     public static Optional<String> lastHistoryRecord = Optional.empty();
 
     public static void main(String[] args) {

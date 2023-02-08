@@ -44,6 +44,8 @@ public final class HistoryWriterThread<Type extends ChangeHistoryRecord<? extend
         }
         MainApplication.historyWritingInProgress = false;
 
+        MainApplication.refreshHomeScreen = true;
+
         notifyAll();
     }
 }

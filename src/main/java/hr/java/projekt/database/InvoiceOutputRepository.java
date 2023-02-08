@@ -11,7 +11,8 @@ import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.inventory.ArticleTransaction;
 import hr.java.projekt.model.invoices.Invoice;
-import hr.java.projekt.model.invoices.InvoiceBuilder;
+import hr.java.projekt.model.invoices.InvoiceOutput;
+import hr.java.projekt.model.invoices.InvoiceOutputBuilder;
 import hr.java.projekt.model.invoices.InvoicePayment;
 
 import java.io.IOException;
@@ -23,11 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class InvoiceOutputRepository implements Dao<Invoice> {
+public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
 
     @Override
-    public Optional<Invoice> get(Long id) throws DatabaseException {
-        Optional<Invoice> invoice = Optional.empty();
+    public Optional<InvoiceOutput> get(Long id) throws DatabaseException {
+        Optional<InvoiceOutput> invoice = Optional.empty();
 
         try (Connection db = Database.connectToDatabase()) {
             PreparedStatement documentQuery = db.prepareStatement("SELECT * FROM INVOICE_OUTPUT WHERE ID = ? LIMIT 1");
@@ -36,7 +37,7 @@ public class InvoiceOutputRepository implements Dao<Invoice> {
             ResultSet documentQueryResult = documentQuery.executeQuery();
 
             if (documentQueryResult.next()) {
-                Invoice document = mapResultSet(documentQueryResult);
+                InvoiceOutput document = mapResultSet(documentQueryResult);
 
                 PreparedStatement transactionsQuery = db.prepareStatement("SELECT * FROM INVOICE_OUTPUT_TRANSACTIONS WHERE INVOICE_OUTPUT_ID = ?");
                 transactionsQuery.setLong(1, id);
@@ -88,8 +89,8 @@ public class InvoiceOutputRepository implements Dao<Invoice> {
     }
 
     @Override
-    public List<Invoice> getMany() throws DatabaseException {
-        List<Invoice> invoices = new ArrayList<>();
+    public List<InvoiceOutput> getMany() throws DatabaseException {
+        List<InvoiceOutput> invoices = new ArrayList<>();
 
         try (Connection db = Database.connectToDatabase()) {
             PreparedStatement query = db.prepareStatement("SELECT * FROM INVOICE_OUTPUT");
@@ -107,7 +108,7 @@ public class InvoiceOutputRepository implements Dao<Invoice> {
     }
 
     @Override
-    public Long save(Invoice invoice) throws DatabaseException {
+    public Long save(InvoiceOutput invoice) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()) {
             db.setAutoCommit(false);
 
@@ -140,7 +141,7 @@ public class InvoiceOutputRepository implements Dao<Invoice> {
         }
     }
 
-    public void save(Long documentId, Invoice invoice) throws DatabaseException {
+    public void save(Long documentId, InvoiceOutput invoice) throws DatabaseException {
         if (Optional.ofNullable(invoice.getId()).isEmpty())
             invoice.setId(documentId);
 
@@ -264,7 +265,7 @@ public class InvoiceOutputRepository implements Dao<Invoice> {
     }
 
     @Override
-    public void update(Long id, Invoice invoice) throws DatabaseException {
+    public void update(Long id, InvoiceOutput invoice) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()) {
             db.setAutoCommit(false);
 
@@ -321,7 +322,7 @@ public class InvoiceOutputRepository implements Dao<Invoice> {
     }
 
     @Override
-    public void delete(Invoice invoice) throws DatabaseException {
+    public void delete(InvoiceOutput invoice) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()){
             db.setAutoCommit(false);
 
@@ -336,8 +337,8 @@ public class InvoiceOutputRepository implements Dao<Invoice> {
     }
 
     @Override
-    public Invoice mapResultSet(ResultSet resultSet) throws SQLException, DatabaseException {
-        InvoiceBuilder builder = new InvoiceBuilder();
+    public InvoiceOutput mapResultSet(ResultSet resultSet) throws SQLException, DatabaseException {
+        InvoiceOutputBuilder builder = new InvoiceOutputBuilder();
 
         builder.setId(resultSet.getLong("ID"));
         builder.setInvoiceDate(resultSet.getDate("INVOICE_DATE").toLocalDate());

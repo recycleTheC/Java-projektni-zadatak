@@ -18,9 +18,8 @@ import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.history.CreatedChangeRecord;
 import hr.java.projekt.model.history.UpdatedChangeRecord;
 import hr.java.projekt.model.inventory.ArticleTransaction;
-import hr.java.projekt.model.inventory.assetinput.AssetInput;
-import hr.java.projekt.model.invoices.Invoice;
-import hr.java.projekt.model.invoices.InvoiceBuilder;
+import hr.java.projekt.model.invoices.InvoiceOutput;
+import hr.java.projekt.model.invoices.InvoiceOutputBuilder;
 import hr.java.projekt.model.invoices.InvoicePayment;
 import hr.java.projekt.threads.HistoryWriterThread;
 import hr.java.projekt.util.dialog.ConfirmationDialog;
@@ -105,7 +104,7 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
     private Optional<Business> selectedPartner;
     private Optional<Article> selectedArticle;
     private Optional<ArticleStock> selectedArticleStock;
-    private Optional<Invoice> document;
+    private Optional<InvoiceOutput> document;
     private NumberFormat numberFormatter;
     private ArticleRepository articleRepository;
     private BigDecimal invoiceTotalAmount;
@@ -136,20 +135,20 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
         amountColumn.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getTotal()));
 
         transactionTableView.getItems().addListener((ListChangeListener<? super ArticleTransaction>) observable -> {
-            invoiceTotalAmount = Invoice.getTotalAmountWithVAT(transactionTableView.getItems());
-            totalText.setText(numberFormatter.format(Invoice.getTotalBasisAmount(transactionTableView.getItems())));
+            invoiceTotalAmount = InvoiceOutput.getTotalAmountWithVAT(transactionTableView.getItems());
+            totalText.setText(numberFormatter.format(InvoiceOutput.getTotalBasisAmount(transactionTableView.getItems())));
 
-            vat25Text.setText(numberFormatter.format(Invoice.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.REGULAR_RATE)));
-            vat13Text.setText(numberFormatter.format(Invoice.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.LOWER_RATE)));
-            vat05Text.setText(numberFormatter.format(Invoice.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.LOWEST_RATE)));
-            vat00Text.setText(numberFormatter.format(Invoice.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.TAX_FREE).add(Invoice.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.TRANSIENT_RATE))));
+            vat25Text.setText(numberFormatter.format(InvoiceOutput.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.REGULAR_RATE)));
+            vat13Text.setText(numberFormatter.format(InvoiceOutput.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.LOWER_RATE)));
+            vat05Text.setText(numberFormatter.format(InvoiceOutput.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.LOWEST_RATE)));
+            vat00Text.setText(numberFormatter.format(InvoiceOutput.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.TAX_FREE).add(InvoiceOutput.getTaxAmountByRate(transactionTableView.getItems(), TaxRate.TRANSIENT_RATE))));
 
-            vat25BasisText.setText(numberFormatter.format(Invoice.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.REGULAR_RATE)));
-            vat13BasisText.setText(numberFormatter.format(Invoice.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.LOWER_RATE)));
-            vat05BasisText.setText(numberFormatter.format(Invoice.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.LOWEST_RATE)));
-            vat00BasisText.setText(numberFormatter.format(Invoice.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.TAX_FREE).add(Invoice.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.TRANSIENT_RATE))));
+            vat25BasisText.setText(numberFormatter.format(InvoiceOutput.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.REGULAR_RATE)));
+            vat13BasisText.setText(numberFormatter.format(InvoiceOutput.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.LOWER_RATE)));
+            vat05BasisText.setText(numberFormatter.format(InvoiceOutput.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.LOWEST_RATE)));
+            vat00BasisText.setText(numberFormatter.format(InvoiceOutput.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.TAX_FREE).add(InvoiceOutput.getBasisAmountByTaxRate(transactionTableView.getItems(), TaxRate.TRANSIENT_RATE))));
 
-            totalWithVATText.setText(numberFormatter.format(Invoice.getTotalAmountWithVAT(transactionTableView.getItems())));
+            totalWithVATText.setText(numberFormatter.format(InvoiceOutput.getTotalAmountWithVAT(transactionTableView.getItems())));
         });
 
         paymentDateColumn.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getDate()));
@@ -174,7 +173,7 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
         invoiceIdField.focusedProperty().addListener((observableValue, unfocused, focused) -> {
             if (unfocused) {
                 try {
-                    Optional<Invoice> selectedDocument = invoiceOutputRepository.get(invoiceIdField.getNumber());
+                    Optional<InvoiceOutput> selectedDocument = invoiceOutputRepository.get(invoiceIdField.getNumber());
                     selectedDocument.ifPresent(this::setFields);
                 } catch (DatabaseException ex) {
                     MessageBox.show("Račun-otpremnica", "Pogreška u radu s bazom podataka", "Račun nije dohvaćen iz baze podataka!", ex);
@@ -195,9 +194,9 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
 
     public void selectAction() throws IOException {
         try {
-            Optional<Invoice> selection = SelectionDialog.showDialog("Račun-otpremnica", "Odabir računa", "invoice_output-selection-dialog.fxml");
+            Optional<InvoiceOutput> selection = SelectionDialog.showDialog("Račun-otpremnica", "Odabir računa", "invoice_output-selection-dialog.fxml");
             if (selection.isPresent()) {
-                Optional<Invoice> selectedDocument = invoiceOutputRepository.get(selection.get().getId());
+                Optional<InvoiceOutput> selectedDocument = invoiceOutputRepository.get(selection.get().getId());
                 selectedDocument.ifPresent(this::setFields);
             }
         } catch (DatabaseException ex) {
@@ -206,7 +205,7 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
         }
     }
 
-    private void setFields(Invoice invoice) {
+    private void setFields(InvoiceOutput invoice) {
         document = Optional.of(invoice);
         invoiceIdField.setNumber(invoice.getId());
         invoiceDatePicker.setValue(invoice.getInvoiceDate());
@@ -217,9 +216,9 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
         selectedPartner = Optional.of(invoice.getPartner());
         partnerLabel.setText(invoice.getPartner().getName());
 
-        for(ArticleTransaction transaction : invoice.getTransactions()){
-            if(transaction.getArticle() instanceof Asset asset){
-                try{
+        for (ArticleTransaction transaction : invoice.getTransactions()) {
+            if (transaction.getArticle() instanceof Asset asset) {
+                try {
                     ArticleStock stock = articleRepository.getStock(asset, invoice.getDeliveryDate());
                     asset.setPurchasePrice(stock.getAveragePurchasePrice());
                 } catch (DatabaseException e) {
@@ -380,7 +379,7 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
     public void resetPaymentRow() {
         paymentTableView.getSelectionModel().clearSelection();
         paymentDatePicker.setValue(null);
-        paymentAmountField.setNumber(new BigDecimal("0").setScale(2,RoundingMode.HALF_UP));
+        paymentAmountField.setNumber(new BigDecimal("0").setScale(2, RoundingMode.HALF_UP));
         addPaymentRowButton.setText("Dodaj stavku");
         deletePaymentRowButton.setDisable(true);
         cancelPaymentRowButton.setDisable(true);
@@ -403,8 +402,7 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
 
         if (amount.equals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)) || amount.compareTo(invoiceTotalAmount) > 0)
             validationError.append("Iznos uplate ne smije biti veći od iznosa računa!\n");
-        if (Optional.ofNullable(date).isEmpty())
-            validationError.append("Datum uplate mora biti unesen!\n");
+        if (Optional.ofNullable(date).isEmpty()) validationError.append("Datum uplate mora biti unesen!\n");
 
         if (validationError.isEmpty()) {
             int index = paymentTableView.getSelectionModel().getSelectedIndex();
@@ -425,7 +423,7 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
         LocalDate dateOfDelivery = dateOfDeliveryPicker.getValue();
 
         List<ArticleTransaction> transactions = transactionTableView.getItems().parallelStream().toList();
-        BigDecimal amount = Invoice.getTotalAmountWithVAT(transactions);
+        BigDecimal amount = InvoiceOutput.getTotalAmountWithVAT(transactions);
         List<InvoicePayment> payments = paymentTableView.getItems().parallelStream().toList();
         BigDecimal paymentAmount = InvoicePayment.getTotalAmount(payments);
 
@@ -454,7 +452,7 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
         }
 
         if (validationError.isEmpty()) {
-            InvoiceBuilder builder = new InvoiceBuilder();
+            InvoiceOutputBuilder builder = new InvoiceOutputBuilder();
             builder.setPartner(selectedPartner.get());
             builder.setInvoiceDate(date);
             builder.setDeliveryDate(dateOfDelivery);
@@ -469,19 +467,18 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
                 Long documentId = document.map(Entity::getId).orElse(invoiceIdField.getNumber());
 
                 if (document.isPresent()) {
-                    Invoice invoice = builder.setId(document.get().getId()).build();
+                    InvoiceOutput invoice = builder.setId(document.get().getId()).build();
                     invoiceOutputRepository.update(documentId, invoice);
-                    //new HistoryWriterThread<>(new UpdatedChangeRecord<>(document.get(), invoice)).start();
+                    new HistoryWriterThread<>(new UpdatedChangeRecord<>(document.get(), invoice)).start();
                 } else {
-                    Invoice invoice = builder.build();
+                    InvoiceOutput invoice = builder.build();
 
                     if (documentId.equals(0L)) {
                         documentId = invoiceOutputRepository.save(invoice);
                     } else {
                         invoiceOutputRepository.save(documentId, invoice);
                     }
-
-                    //new HistoryWriterThread<>(new CreatedChangeRecord<>(invoice)).start();
+                    new HistoryWriterThread<>(new CreatedChangeRecord<>(invoice)).start();
                 }
 
                 MessageBox.show("Račun-otpremnica", "Uspješno spremanje", "Račun-otpremnica " + documentId + " je uspješno spremljen u bazu podataka!");

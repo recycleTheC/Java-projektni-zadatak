@@ -18,18 +18,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Invoice extends Entity implements WritableHistory {
-    private Business partner;
-    private LocalDate invoiceDate, dueDate, deliveryDate;
-    private List<ArticleTransaction> transactions;
-    private List<InvoicePayment> payments;
+    protected Business partner;
+    protected LocalDate invoiceDate, dueDate;
+    protected List<ArticleTransaction> transactions;
+    protected List<InvoicePayment> payments;
+    protected BigDecimal staticAmount;
 
-    private BigDecimal staticAmount;
-    public Invoice(Long id, Business partner, LocalDate invoiceDate, LocalDate dueDate, LocalDate deliveryDate, List<ArticleTransaction> transactions, List<InvoicePayment> payments) {
+    public Invoice(Long id, Business partner, LocalDate invoiceDate, LocalDate dueDate, List<ArticleTransaction> transactions, List<InvoicePayment> payments) {
         super(id);
         this.partner = partner;
         this.invoiceDate = invoiceDate;
         this.dueDate = dueDate;
-        this.deliveryDate = deliveryDate;
 
         if (transactions == null) this.transactions = new ArrayList<>();
         else this.transactions = transactions;
@@ -38,13 +37,13 @@ public class Invoice extends Entity implements WritableHistory {
         else this.payments = payments;
     }
 
-    public Invoice(Business partner, LocalDate invoiceDate, LocalDate dueDate, LocalDate deliveryDate, List<ArticleTransaction> transactions, List<InvoicePayment> payments) {
-        this(null, partner, invoiceDate, dueDate, deliveryDate, transactions, payments);
+    public Invoice(Business partner, LocalDate invoiceDate, LocalDate dueDate, List<ArticleTransaction> transactions, List<InvoicePayment> payments) {
+        this(null, partner, invoiceDate, dueDate, transactions, payments);
     }
 
-    public Invoice(Long id, Business partner, LocalDate invoiceDate, LocalDate dueDate, LocalDate deliveryDate, List<ArticleTransaction> transactions, List<InvoicePayment> payments, BigDecimal staticAmount) {
-        this(id, partner, invoiceDate, dueDate, deliveryDate, transactions, payments);
-        if(staticAmount != null) this.staticAmount = staticAmount.setScale(2,RoundingMode.HALF_UP);
+    public Invoice(Long id, Business partner, LocalDate invoiceDate, LocalDate dueDate, List<ArticleTransaction> transactions, List<InvoicePayment> payments, BigDecimal staticAmount) {
+        this(id, partner, invoiceDate, dueDate, transactions, payments);
+        if (staticAmount != null) this.staticAmount = staticAmount.setScale(2, RoundingMode.HALF_UP);
     }
 
     public Invoice() {
@@ -114,7 +113,7 @@ public class Invoice extends Entity implements WritableHistory {
         List<ArticleTransaction> transactions = this.transactions.stream().filter(transaction -> transaction.getArticle() instanceof Asset).toList();
         BigDecimal sum = new BigDecimal("0").setScale(2, RoundingMode.HALF_UP);
 
-        for(ArticleTransaction transaction : transactions){
+        for (ArticleTransaction transaction : transactions) {
             Asset asset = (Asset) transaction.getArticle();
             sum = sum.add(asset.getPurchasePrice());
         }
@@ -162,14 +161,6 @@ public class Invoice extends Entity implements WritableHistory {
         this.dueDate = dueDate;
     }
 
-    public LocalDate getDeliveryDate() {
-        return deliveryDate;
-    }
-
-    public void setDeliveryDate(LocalDate deliveryDate) {
-        this.deliveryDate = deliveryDate;
-    }
-
     public List<ArticleTransaction> getTransactions() {
         return transactions;
     }
@@ -182,12 +173,12 @@ public class Invoice extends Entity implements WritableHistory {
         return payments;
     }
 
-    public void insertTransaction(ArticleTransaction transaction) {
-        this.transactions.add(transaction);
-    }
-
     public void setPayments(List<InvoicePayment> payments) {
         this.payments = payments;
+    }
+
+    public void insertTransaction(ArticleTransaction transaction) {
+        this.transactions.add(transaction);
     }
 
     public BigDecimal getStaticAmount() {
@@ -203,5 +194,10 @@ public class Invoice extends Entity implements WritableHistory {
     @Override
     public String getIdentifier() {
         return this.getId().toString();
+    }
+
+    @Override
+    public String getShortDescription() {
+        return "Račun " + this.getId();
     }
 }

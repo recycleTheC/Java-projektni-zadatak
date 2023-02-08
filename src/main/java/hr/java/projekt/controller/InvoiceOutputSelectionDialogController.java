@@ -7,6 +7,7 @@ package hr.java.projekt.controller;
 import hr.java.projekt.database.InvoiceOutputRepository;
 import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.invoices.Invoice;
+import hr.java.projekt.model.invoices.InvoiceOutput;
 import hr.java.projekt.util.dialog.CanReturnTableViewSelection;
 import hr.java.projekt.util.dialog.MessageBox;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,7 +25,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public final class InvoiceOutputSelectionDialogController implements CanReturnTableViewSelection<Invoice> {
-    private static final class DateTableViewCell extends TableCell<Invoice, LocalDate> {
+    private static final class DateTableViewCell extends TableCell<InvoiceOutput, LocalDate> {
         @Override
         protected void updateItem(LocalDate item, boolean empty) {
             super.updateItem(item, empty);
@@ -37,17 +38,17 @@ public final class InvoiceOutputSelectionDialogController implements CanReturnTa
     }
 
     @FXML
-    public TableView<Invoice> invoiceTableView;
+    public TableView<InvoiceOutput> invoiceTableView;
     @FXML
-    private TableColumn<Invoice, Long> idColumn;
+    private TableColumn<InvoiceOutput, Long> idColumn;
     @FXML
-    private TableColumn<Invoice, String> partnerColumn;
+    private TableColumn<InvoiceOutput, String> partnerColumn;
     @FXML
-    private TableColumn<Invoice, LocalDate> dateColumn;
+    private TableColumn<InvoiceOutput, LocalDate> dateColumn;
     @FXML
-    private TableColumn<Invoice, LocalDate> dueDateColumn;
+    private TableColumn<InvoiceOutput, LocalDate> dueDateColumn;
     @FXML
-    private TableColumn<Invoice, BigDecimal> amountColumn;
+    private TableColumn<InvoiceOutput, BigDecimal> amountColumn;
     private static final Logger logger = LoggerFactory.getLogger(InvoiceOutputSelectionDialogController.class);
 
     public void initialize() {

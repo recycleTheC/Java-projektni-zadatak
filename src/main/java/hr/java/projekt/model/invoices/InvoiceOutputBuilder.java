@@ -12,7 +12,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
-public class InvoiceBuilder {
+public class InvoiceOutputBuilder {
     private Long id = null;
     private Business partner;
     private LocalDate invoiceDate;
@@ -22,47 +22,47 @@ public class InvoiceBuilder {
     private List<InvoicePayment> payments;
     private BigDecimal amount;
 
-    public InvoiceBuilder setId(Long id) {
+    public InvoiceOutputBuilder setId(Long id) {
         this.id = id;
         return this;
     }
 
-    public InvoiceBuilder setPartner(Business partner) {
+    public InvoiceOutputBuilder setPartner(Business partner) {
         this.partner = partner;
         return this;
     }
 
-    public InvoiceBuilder setInvoiceDate(LocalDate invoiceDate) {
+    public InvoiceOutputBuilder setInvoiceDate(LocalDate invoiceDate) {
         this.invoiceDate = invoiceDate;
         return this;
     }
 
-    public InvoiceBuilder setDueDate(LocalDate dueDate) {
+    public InvoiceOutputBuilder setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
         return this;
     }
 
-    public InvoiceBuilder setDeliveryDate(LocalDate deliveryDate) {
+    public InvoiceOutputBuilder setDeliveryDate(LocalDate deliveryDate) {
         this.deliveryDate = deliveryDate;
         return this;
     }
 
-    public InvoiceBuilder setTransactions(List<ArticleTransaction> transactions) {
+    public InvoiceOutputBuilder setTransactions(List<ArticleTransaction> transactions) {
         this.transactions = transactions;
         return this;
     }
 
-    public InvoiceBuilder setPayments(List<InvoicePayment> payments) {
+    public InvoiceOutputBuilder setPayments(List<InvoicePayment> payments) {
         this.payments = payments;
         return this;
     }
 
-    public InvoiceBuilder setAmount(BigDecimal amount) {
+    public InvoiceOutputBuilder setAmount(BigDecimal amount) {
         this.amount = amount.setScale(2, RoundingMode.HALF_UP);
         return this;
     }
 
-    public Invoice build() {
-        return new Invoice(id, partner, invoiceDate, dueDate, deliveryDate, transactions, payments, amount);
+    public InvoiceOutput build() {
+        return new InvoiceOutput(id, partner, invoiceDate, dueDate, deliveryDate, transactions, payments, amount);
     }
 }

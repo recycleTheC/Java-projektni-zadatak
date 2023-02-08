@@ -16,7 +16,7 @@ public final class ChangeHistoryRecordFiles {
     public static final String DIRECTORY = "history";
     private static final Logger logger = LoggerFactory.getLogger(ChangeHistoryRecordFiles.class);
 
-    public static <Record extends ChangeHistoryRecord<? extends WritableHistory>> void write(Record record) {
+    public static <Record extends ChangeHistoryRecord<? extends WritableHistory>> Path write(Record record) {
         Path path = Path.of(DIRECTORY, "change_" + record.getTimeStamp().format(DateTimeFormatter.ofPattern(ChangeHistoryRecord.DATE_TIME_FORMAT)) + ".dat");
         try (ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(path.toFile()))) {
             writer.writeObject(record);
@@ -24,6 +24,7 @@ public final class ChangeHistoryRecordFiles {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+        return path;
     }
 
     public static ChangeHistoryRecord read(File file) throws IOException, ClassNotFoundException {

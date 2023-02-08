@@ -124,4 +124,9 @@ public class AssetInput extends Entity implements WritableHistory {
     public String getIdentifier() {
         return this.getId().toString();
     }
+
+    @Override
+    public String getShortDescription() {
+        return "Primka " + this.getId();
+    }
 }

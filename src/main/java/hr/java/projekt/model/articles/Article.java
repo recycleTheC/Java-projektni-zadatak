@@ -104,4 +104,9 @@ public abstract class Article extends Entity implements WritableHistory {
     public String getIdentifier() {
         return this.code;
     }
+
+    @Override
+    public String getShortDescription() {
+        return "Artikl " + this.getCode();
+    }
 }

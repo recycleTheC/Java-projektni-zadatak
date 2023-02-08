@@ -50,7 +50,7 @@
                   <Font size="10.0" />
                </font>
             </Label>
-            <Label text="(promjena)">
+            <Label fx:id="lastHistoryRecord" text="(nema promjena od pokretanja)">
                <font>
                   <Font size="10.0" />
                </font>

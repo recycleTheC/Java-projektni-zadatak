@@ -54,4 +54,9 @@ public class BasicCompanyData extends Business implements Serializable, Writable
     public String getIdentifier() {
         return this.getOIB();
     }
+
+    @Override
+    public String getShortDescription() {
+        return "Osnovni podatci tvrtke";
+    }
 }

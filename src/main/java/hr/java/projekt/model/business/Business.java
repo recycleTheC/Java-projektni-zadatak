@@ -9,6 +9,7 @@ import hr.java.projekt.util.validation.oib.OIBValidator;
 
 public class Business extends Entity implements WritableHistory {
     private String name, address, postalCodeAndTown, oib, iban;
+    private Long paymentTerm;
 
     public Business() {
         super();
@@ -73,6 +74,13 @@ public class Business extends Entity implements WritableHistory {
             this.iban = iban;
         }
     }
+    public Long getPaymentTerm() {
+        return paymentTerm;
+    }
+
+    public void setPaymentTerm(Long paymentTerm) {
+        this.paymentTerm = paymentTerm;
+    }
 
     @Override
     public StringBuilder stringGenerator() {
@@ -83,6 +91,7 @@ public class Business extends Entity implements WritableHistory {
         builder.append("Poštanski broj, mjesto: ").append(this.getPostalCodeAndTown()).append("\n");
         builder.append("OIB: ").append(this.getOIB()).append("\n");
         builder.append("IBAN: ").append(this.getIBAN()).append("\n");
+        builder.append("Odgoda plaćanja: ").append(this.getPaymentTerm()).append("\n");
         return builder;
     }
 

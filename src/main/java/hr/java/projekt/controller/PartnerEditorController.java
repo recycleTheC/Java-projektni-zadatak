@@ -2,6 +2,8 @@ package hr.java.projekt.controller;
 
 import hr.java.projekt.database.BusinessRepository;
 import hr.java.projekt.exceptions.DatabaseException;
+import hr.java.projekt.exceptions.IBANValidationException;
+import hr.java.projekt.exceptions.OIBValidationException;
 import hr.java.projekt.javafx.LongNumberTextField;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.business.BusinessBuilder;
@@ -12,12 +14,13 @@ import hr.java.projekt.threads.HistoryWriterThread;
 import hr.java.projekt.util.dialog.ConfirmationDialog;
 import hr.java.projekt.util.dialog.MessageBox;
 import hr.java.projekt.util.dialog.SelectionDialog;
-import hr.java.projekt.exceptions.IBANValidationException;
 import hr.java.projekt.util.validation.iban.IBANValidator;
-import hr.java.projekt.exceptions.OIBValidationException;
 import hr.java.projekt.util.validation.oib.OIBValidator;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 public final class PartnerEditorController implements CanSetTabTitle {
+    private static final Logger logger = LoggerFactory.getLogger(PartnerEditorController.class);
     @FXML
     private LongNumberTextField idField;
     @FXML
@@ -38,12 +42,12 @@ public final class PartnerEditorController implements CanSetTabTitle {
     @FXML
     private TextField ibanField;
     @FXML
+    private LongNumberTextField paymentTermField;
+    @FXML
     private Button deleteButton;
-
     private BusinessRepository partnerRepository;
     private Optional<Business> savedItem;
     private Tab tab;
-    private static final Logger logger = LoggerFactory.getLogger(PartnerEditorController.class);
 
     @FXML
     private void initialize() {
@@ -109,6 +113,7 @@ public final class PartnerEditorController implements CanSetTabTitle {
         String postal = postalField.getText();
         String oib = oibField.getText();
         String iban = ibanField.getText();
+        Long paymentTerm = paymentTermField.getNumber();
 
         StringBuilder validationError = new StringBuilder();
 
@@ -123,8 +128,7 @@ public final class PartnerEditorController implements CanSetTabTitle {
                 validationError.append(e.getMessage()).append("\n");
             }
         }
-        if (iban.isBlank()) validationError.append("IBAN nije naveden!\n");
-        else {
+        if (!iban.isBlank()) {
             try {
                 IBANValidator.validate(iban);
             } catch (IBANValidationException e) {
@@ -140,7 +144,7 @@ public final class PartnerEditorController implements CanSetTabTitle {
         boolean confirmation = ConfirmationDialog.showDialog("Partner", "Spremanje partnera", "Želite li spremiti partnera '" + name + "'?");
         if (!confirmation) return;
 
-        Business partner = new BusinessBuilder().setName(name).setAddress(address).setPostalCodeAndTown(postal).setUncheckedOIB(oib).setUncheckedIBAN(iban).build();
+        Business partner = new BusinessBuilder().setName(name).setAddress(address).setPostalCodeAndTown(postal).setUncheckedOIB(oib).setUncheckedIBAN(iban).setPaymentTerm(paymentTerm).build();
 
         try {
             if (savedItem.isPresent()) {
@@ -197,6 +201,7 @@ public final class PartnerEditorController implements CanSetTabTitle {
         postalField.setText("");
         oibField.setText(null);
         ibanField.setText(null);
+        paymentTermField.setNumber(0L);
     }
 
     private void setFields(Business partner) {
@@ -211,6 +216,7 @@ public final class PartnerEditorController implements CanSetTabTitle {
         postalField.setText(partner.getPostalCodeAndTown());
         oibField.setText(partner.getOIB());
         ibanField.setText(partner.getIBAN());
+        paymentTermField.setNumber(partner.getPaymentTerm());
     }
 
     @Override

@@ -6,7 +6,7 @@ import hr.java.projekt.exceptions.OIBValidationException;
 import hr.java.projekt.util.validation.oib.OIBValidator;
 
 public class BusinessBuilder {
-    private Long id;
+    private Long id, paymentTerm;
     private String name;
     private String address;
     private String postalCodeAndTown;
@@ -57,7 +57,13 @@ public class BusinessBuilder {
         return this;
     }
 
+    public BusinessBuilder setPaymentTerm(Long term) {
+        this.paymentTerm = term;
+        return this;
+    }
     public Business build() {
-        return new Business(id, name, address, postalCodeAndTown, oib, iban);
+        Business business = new Business(id, name, address, postalCodeAndTown, oib, iban);
+        business.setPaymentTerm(paymentTerm);
+        return business;
     }
 }

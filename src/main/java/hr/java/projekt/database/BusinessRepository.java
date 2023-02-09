@@ -56,13 +56,14 @@ public class BusinessRepository implements Dao<Business> {
     @Override
     public Long save(Business business) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()) {
-            PreparedStatement query = db.prepareStatement("INSERT INTO PARTNERS (NAME, ADDRESS, POSTAL, OIB, IBAN) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement query = db.prepareStatement("INSERT INTO PARTNERS (NAME, ADDRESS, POSTAL, OIB, IBAN, PAYMENT_TERM) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 
             query.setString(1, business.getName());
             query.setString(2, business.getAddress());
             query.setString(3, business.getPostalCodeAndTown());
             query.setString(4, business.getOIB());
             query.setString(5, business.getIBAN());
+            query.setLong(6, business.getPaymentTerm());
 
             query.executeUpdate();
 
@@ -81,14 +82,15 @@ public class BusinessRepository implements Dao<Business> {
     @Override
     public void update(Long id, Business business) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()) {
-            PreparedStatement query = db.prepareStatement("UPDATE PARTNERS SET NAME = ?, ADDRESS = ?, POSTAL = ?, OIB = ?, IBAN = ? WHERE ID = ?");
+            PreparedStatement query = db.prepareStatement("UPDATE PARTNERS SET NAME = ?, ADDRESS = ?, POSTAL = ?, OIB = ?, IBAN = ?, PAYMENT_TERM = ? WHERE ID = ?");
 
             query.setString(1, business.getName());
             query.setString(2, business.getAddress());
             query.setString(3, business.getPostalCodeAndTown());
             query.setString(4, business.getOIB());
             query.setString(5, business.getIBAN());
-            query.setLong(6, id);
+            query.setLong(6, business.getPaymentTerm());
+            query.setLong(7, id);
 
             query.executeUpdate();
         } catch (SQLException | IOException ex) {
@@ -115,6 +117,7 @@ public class BusinessRepository implements Dao<Business> {
         builder.setPostalCodeAndTown(resultSet.getString("POSTAL"));
         builder.setUncheckedOIB(resultSet.getString("OIB"));
         builder.setUncheckedIBAN(resultSet.getString("IBAN"));
+        builder.setPaymentTerm(resultSet.getLong("PAYMENT_TERM"));
         return builder.build();
     }
 

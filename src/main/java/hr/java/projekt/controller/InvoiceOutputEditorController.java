@@ -241,6 +241,10 @@ public class InvoiceOutputEditorController implements CanSetTabTitle {
         if (selection.isPresent()) {
             selectedPartner = selection;
             partnerLabel.setText(selection.get().getName());
+
+            if(Optional.ofNullable(invoiceDatePicker.getValue()).isPresent()){
+                dueDatePicker.setValue(invoiceDatePicker.getValue().plusDays(selection.get().getPaymentTerm()));
+            }
         } else {
             selectedPartner = Optional.empty();
             partnerLabel.setText("-");

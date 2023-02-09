@@ -32,6 +32,8 @@ public class HomeController {
     @FXML
     private BarChart<String, Double> buyerChart;
     @FXML
+    private BarChart<String, Double> operatorChart;
+    @FXML
     private TableView<Invoice> dueInvoicesTable;
     @FXML
     private TableColumn<Invoice, String> partnerDueInvoicesColumn;
@@ -48,12 +50,16 @@ public class HomeController {
         buyerChart.setLegendVisible(false);
         buyerChart.setAnimated(false);
 
+        operatorChart.getYAxis().setLabel("Promet");
+        operatorChart.setLegendVisible(false);
+        operatorChart.setAnimated(false);
+
         documentDueInvoicesColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getShortDescription()));
         amountDueInvoicesColumn.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getStaticAmount()));
         dateDueInvoicesColumn.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getDueDate()));
         dateDueInvoicesColumn.setCellFactory(cell -> new DateTableViewCell());
         partnerDueInvoicesColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getPartner().getName()));
 
-        new HomeScreenThread(buyerChart, dueInvoicesTable).start();
+        new HomeScreenThread(buyerChart, operatorChart, dueInvoicesTable).start();
     }
 }

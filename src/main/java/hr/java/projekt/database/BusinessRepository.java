@@ -69,7 +69,9 @@ public class BusinessRepository implements Dao<Business> {
 
             try (ResultSet generatedKeys = query.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    return generatedKeys.getLong(1);
+                    Long id = generatedKeys.getLong(1);
+                    business.setId(id);
+                    return id;
                 } else {
                     throw new SQLException("Neuspješno kreiranje konta! ID nije dohvaćen.");
                 }
@@ -81,6 +83,10 @@ public class BusinessRepository implements Dao<Business> {
 
     @Override
     public void update(Long id, Business business) throws DatabaseException {
+        if(Optional.ofNullable(business.getId()).isEmpty()){
+            business.setId(id);
+        }
+
         try (Connection db = Database.connectToDatabase()) {
             PreparedStatement query = db.prepareStatement("UPDATE PARTNERS SET NAME = ?, ADDRESS = ?, POSTAL = ?, OIB = ?, IBAN = ?, PAYMENT_TERM = ? WHERE ID = ?");
 

@@ -112,12 +112,13 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
         try (Connection db = Database.connectToDatabase()) {
             db.setAutoCommit(false);
 
-            PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO INVOICE_OUTPUT(PARTNER_ID, INVOICE_DATE, DUE_DATE, DELIVERY_DATE, AMOUNT) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO INVOICE_OUTPUT(PARTNER_ID, INVOICE_DATE, DUE_DATE, DELIVERY_DATE, AMOUNT, OPERATOR_ID) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             insertDocumentQuery.setLong(1, invoice.getPartner().getId());
             insertDocumentQuery.setDate(2, Date.valueOf(invoice.getInvoiceDate()));
             insertDocumentQuery.setDate(3, Date.valueOf(invoice.getDueDate()));
             insertDocumentQuery.setDate(4, Date.valueOf(invoice.getDeliveryDate()));
             insertDocumentQuery.setBigDecimal(5, invoice.getTotalAmountWithVAT());
+            insertDocumentQuery.setLong(6, MainApplication.operator.getId());
             insertDocumentQuery.executeUpdate();
 
             try (ResultSet generatedKeys = insertDocumentQuery.getGeneratedKeys()) {
@@ -148,13 +149,14 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
         try (Connection db = Database.connectToDatabase()) {
             db.setAutoCommit(false);
 
-            PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO INVOICE_OUTPUT(ID, PARTNER_ID, INVOICE_DATE, DUE_DATE, DELIVERY_DATE, AMOUNT) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO INVOICE_OUTPUT(ID, PARTNER_ID, INVOICE_DATE, DUE_DATE, DELIVERY_DATE, AMOUNT, OPERATOR_ID) VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             insertDocumentQuery.setLong(1, invoice.getId());
             insertDocumentQuery.setLong(2, invoice.getPartner().getId());
             insertDocumentQuery.setDate(3, Date.valueOf(invoice.getInvoiceDate()));
             insertDocumentQuery.setDate(4, Date.valueOf(invoice.getDueDate()));
             insertDocumentQuery.setDate(5, Date.valueOf(invoice.getDeliveryDate()));
             insertDocumentQuery.setBigDecimal(6, invoice.getTotalAmountWithVAT());
+            insertDocumentQuery.setLong(7, MainApplication.operator.getId());
             insertDocumentQuery.executeUpdate();
 
             saveInvoiceOutputRows(db, documentId, invoice.getTransactions());

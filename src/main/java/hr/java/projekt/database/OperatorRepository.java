@@ -11,9 +11,12 @@ import hr.java.projekt.model.operator.Role;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 public class OperatorRepository implements Dao<Operator> {
     @Override
@@ -131,6 +134,23 @@ public class OperatorRepository implements Dao<Operator> {
             } else throw new LoginException("Korisnički podatci su neispravni");
         } catch (SQLException | IOException e) {
             throw new DatabaseException("Pogreška u radu s bazom podataka", e);
+        }
+    }
+
+    public Double getOperatorTurnover(Operator operator) throws DatabaseException {
+        try (Connection db = Database.connectToDatabase()) {
+            PreparedStatement query = db.prepareStatement("SELECT (IFNULL(SUM(AMOUNT), 0)) AS \"SUM\" FROM INVOICE_OUTPUT WHERE OPERATOR_ID = ? AND (INVOICE_DATE BETWEEN ? AND ?) GROUP BY OPERATOR_ID");
+            query.setLong(1, operator.getId());
+            LocalDate today = LocalDate.now();
+            query.setDate(2, Date.valueOf(today.withDayOfMonth(1)));
+            query.setDate(3, Date.valueOf(today.with(lastDayOfMonth())));
+
+            ResultSet resultSet = query.executeQuery();
+
+            if (resultSet.next()) return resultSet.getDouble("SUM");
+            else return (double) 0;
+        } catch (SQLException | IOException e) {
+            throw new DatabaseException("Došlo je do pogreške kod brisanja operatera", e);
         }
     }
 }

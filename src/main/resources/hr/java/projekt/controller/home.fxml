@@ -26,14 +26,14 @@
                   <Font name="System Bold Italic" size="14.0" />
                </font>
             </Label>
-            <LineChart>
-              <xAxis>
-                <CategoryAxis side="BOTTOM" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis side="LEFT" />
-              </yAxis>
-            </LineChart>
+             <BarChart fx:id="operatorChart">
+                 <xAxis>
+                     <CategoryAxis side="BOTTOM" />
+                 </xAxis>
+                 <yAxis>
+                     <NumberAxis side="LEFT" />
+                 </yAxis>
+             </BarChart>
          </children>
       </VBox>
       <VBox alignment="CENTER" minHeight="200.0" minWidth="200.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">

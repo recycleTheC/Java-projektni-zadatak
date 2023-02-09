@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
 <GridPane prefWidth="550.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.java.projekt.controller.PartnerSelectionDialogController">
@@ -11,10 +15,11 @@
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
    </columnConstraints>
    <rowConstraints>
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
    </rowConstraints>
    <children>
-      <TableView fx:id="partnerTableView" prefHeight="282.0" prefWidth="450.0">
+      <TableView fx:id="partnerTableView" prefHeight="282.0" prefWidth="450.0" GridPane.rowIndex="1">
         <columns>
           <TableColumn fx:id="idColumn" prefWidth="60.0" text="Šifra" />
           <TableColumn fx:id="nameColumn" prefWidth="156.0" text="Naziv" />
@@ -23,5 +28,15 @@
           <TableColumn fx:id="oibColumn" prefWidth="70.0" text="OIB" />
         </columns>
       </TableView>
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.halignment="CENTER">
+         <children>
+            <Label text="Filter:" />
+            <TextField fx:id="filterField">
+               <HBox.margin>
+                  <Insets left="5.0" />
+               </HBox.margin>
+            </TextField>
+         </children>
+      </HBox>
    </children>
 </GridPane>

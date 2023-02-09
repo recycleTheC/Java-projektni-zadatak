@@ -14,6 +14,8 @@ import hr.java.projekt.util.dialog.MessageBox;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.slf4j.Logger;
@@ -106,8 +108,33 @@ public class HistoryController {
             return new SimpleStringProperty("nepoznato");
         });
 
+        fetchChanges();
+    }
+
+    @FXML
+    private void fetchChanges() {
+        startDateField.setValue(null);
+        endDateField.setValue(null);
         try {
-            changeRecordsTable.setItems(FXCollections.observableArrayList(ChangeHistoryRecordFiles.readAll()));
+            FilteredList<ChangeHistoryRecord> filteredData = new FilteredList<>(FXCollections.observableArrayList(ChangeHistoryRecordFiles.readAll()), p -> true);
+
+            startDateField.valueProperty().addListener((observable, oldValue, newValue) -> {
+                filteredData.setPredicate(record -> {
+                    if (newValue == null) return true;
+                    else return record.getTimeStamp().isAfter(startDateField.getValue().atStartOfDay());
+                });
+            });
+
+            endDateField.valueProperty().addListener((observable, oldValue, newValue) -> {
+                filteredData.setPredicate(record -> {
+                    if (newValue == null) return true;
+                    else return record.getTimeStamp().isBefore(endDateField.getValue().atStartOfDay());
+                });
+            });
+
+            SortedList<ChangeHistoryRecord> sortedData = new SortedList<>(filteredData);
+            sortedData.comparatorProperty().bind(changeRecordsTable.comparatorProperty());
+            changeRecordsTable.setItems(sortedData);
         } catch (IOException | ClassNotFoundException e) {
             logger.error(e.getMessage(), e);
             MessageBox.show("Dohvat promjena", "Greška kod dohvata podataka", "Dohvat promjena nije moguć!", e);

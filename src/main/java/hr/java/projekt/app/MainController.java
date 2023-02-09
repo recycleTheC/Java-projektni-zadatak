@@ -1,30 +1,34 @@
 package hr.java.projekt.app;
 
 import hr.java.projekt.controller.*;
+import hr.java.projekt.model.operator.Role;
 import hr.java.projekt.threads.LastHistoryReaderThread;
-import javafx.application.Platform;
-import javafx.beans.value.ObservableStringValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.chart.BarChart;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Optional;
 
 public class MainController {
     @FXML
     private TabPane tabPane;
     @FXML
     private Label lastHistoryRecord;
+    @FXML
+    private MenuItem companyMenuItem, accountMenuItem, documentParametesMenuItem, operatorsMenuItem, historyMenuItem;
 
     public void initialize() throws IOException {
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.SELECTED_TAB);
         new LastHistoryReaderThread(lastHistoryRecord).start();
+
+        if(MainApplication.operator.getRole().equals(Role.USER)){
+            companyMenuItem.setDisable(true);
+            accountMenuItem.setDisable(true);
+            documentParametesMenuItem.setDisable(true);
+            operatorsMenuItem.setDisable(true);
+            historyMenuItem.setDisable(true);
+        }
 
         showHome();
     }

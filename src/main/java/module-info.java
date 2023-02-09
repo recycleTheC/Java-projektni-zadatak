@@ -9,4 +9,5 @@ module hr.java.projekt.projekt {
     opens hr.java.projekt.javafx to javafx.fxml;
     exports hr.java.projekt.app;
     exports hr.java.projekt.model.account;
+    exports hr.java.projekt.model.operator;
 }

@@ -187,8 +187,29 @@ public class Invoice extends Entity implements WritableHistory {
 
     @Override
     public StringBuilder stringGenerator() {
-        // TODO: string builder
-        return null;
+        StringBuilder builder = new StringBuilder("Račun ");
+        builder.append(this.getId()).append("\n");
+        builder.append("Datum računa: ").append(this.getInvoiceDate()).append("\n");
+        builder.append("Datum dospijeća: ").append(this.getDueDate()).append("\n");
+        builder.append("Iznos: ").append(this.getTotalAmountWithVAT()).append("\n\n");
+
+        builder.append("*** Stavke: ***").append("\n");
+        for(ArticleTransaction transaction: this.transactions){
+            builder.append(transaction.getArticle().getName()).append("; ");
+            builder.append(transaction.getQuantity()).append(" ").append(transaction.getArticle().getMeasure()).append("; ");
+            builder.append("cijena: ").append(transaction.getPrice()).append("; ");
+            builder.append("popust: ").append(transaction.getDiscount()).append("\n");
+        }
+        builder.append("*** Kraj ***").append("\n\n");
+
+        builder.append("***Plaćanja***").append("\n");
+        for(InvoicePayment payment : this.payments){
+            builder.append(payment.getDate()).append("; ");
+            builder.append(payment.getAmount()).append("\n");
+        }
+        builder.append("*** Kraj ***").append("\n\n");
+
+        return builder;
     }
 
     @Override

@@ -93,4 +93,8 @@ public class MainController {
     public void showInvoiceOutputEditorView() throws IOException {
         showView("Račun-otpremnica", StockViewController.class.getResource("invoice_output-editor.fxml"));
     }
+
+    public void showOperatorsEditorView() throws IOException {
+        showView("Operateri", OperatorsEditorController.class.getResource("operators-editor.fxml"));
+    }
 }

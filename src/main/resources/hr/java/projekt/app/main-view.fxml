@@ -20,6 +20,7 @@
                         <MenuItem mnemonicParsing="false" onAction="#showPartnersView" text="Partneri" />
                         <MenuItem mnemonicParsing="false" onAction="#showAccountsView" text="Konta" />
                         <MenuItem mnemonicParsing="false" onAction="#showDefaultParametersEditor" text="Parametri dokumenata" />
+                        <MenuItem mnemonicParsing="false" onAction="#showOperatorsEditorView" text="Operateri" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Robno knjigovodstvo">

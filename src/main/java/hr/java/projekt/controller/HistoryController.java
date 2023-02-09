@@ -7,6 +7,9 @@ import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.company.BasicCompanyData;
 import hr.java.projekt.model.history.*;
 import hr.java.projekt.model.inventory.assetinput.AssetInput;
+import hr.java.projekt.model.invoices.Invoice;
+import hr.java.projekt.model.invoices.InvoiceOutput;
+import hr.java.projekt.model.operator.Operator;
 import hr.java.projekt.util.dialog.MessageBox;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -92,7 +95,16 @@ public class HistoryController {
             return new SimpleStringProperty("nepoznato");
         });
 
-        operatorRecordColumn.setCellValueFactory(cell -> new SimpleStringProperty("nepoznato"));
+        operatorRecordColumn.setCellValueFactory(cell -> {
+            try {
+                if (Optional.ofNullable(cell.getValue().getOperator()).isPresent()) {
+                    return new SimpleStringProperty(cell.getValue().getOperator().getName());
+                }
+            } catch (NullPointerException e) {
+                return new SimpleStringProperty("pogreška kod čitanja");
+            }
+            return new SimpleStringProperty("nepoznato");
+        });
 
         try {
             changeRecordsTable.setItems(FXCollections.observableArrayList(ChangeHistoryRecordFiles.readAll()));
@@ -113,6 +125,12 @@ public class HistoryController {
             return new SimpleStringProperty("Konto");
         } else if (value instanceof AssetInput) {
             return new SimpleStringProperty("Primka");
+        } else if (value instanceof InvoiceOutput) {
+            return new SimpleStringProperty("Račun-otpremnica");
+        } else if (value instanceof Invoice) {
+            return new SimpleStringProperty("Račun");
+        } else if (value instanceof Operator) {
+            return new SimpleStringProperty("Operater");
         } else return new SimpleStringProperty("Nepoznato");
     }
 

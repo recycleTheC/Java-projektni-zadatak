@@ -10,10 +10,7 @@ import hr.java.projekt.model.account.AccountParameters;
 import hr.java.projekt.model.articles.Article;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.inventory.ArticleTransaction;
-import hr.java.projekt.model.invoices.Invoice;
-import hr.java.projekt.model.invoices.InvoiceOutput;
-import hr.java.projekt.model.invoices.InvoiceOutputBuilder;
-import hr.java.projekt.model.invoices.InvoicePayment;
+import hr.java.projekt.model.invoices.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -24,22 +21,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
+public class InvoiceRepository implements Dao<Invoice> {
 
     @Override
-    public Optional<InvoiceOutput> get(Long id) throws DatabaseException {
-        Optional<InvoiceOutput> invoice = Optional.empty();
+    public Optional<Invoice> get(Long id) throws DatabaseException {
+        Optional<Invoice> invoice = Optional.empty();
 
         try (Connection db = Database.connectToDatabase()) {
-            PreparedStatement documentQuery = db.prepareStatement("SELECT * FROM INVOICE_OUTPUT WHERE ID = ? LIMIT 1");
+            PreparedStatement documentQuery = db.prepareStatement("SELECT * FROM INVOICE WHERE ID = ? LIMIT 1");
             documentQuery.setLong(1, id);
 
             ResultSet documentQueryResult = documentQuery.executeQuery();
 
             if (documentQueryResult.next()) {
-                InvoiceOutput document = mapResultSet(documentQueryResult);
+                Invoice document = mapResultSet(documentQueryResult);
 
-                PreparedStatement transactionsQuery = db.prepareStatement("SELECT * FROM INVOICE_OUTPUT_TRANSACTIONS WHERE INVOICE_OUTPUT_ID = ?");
+                PreparedStatement transactionsQuery = db.prepareStatement("SELECT * FROM INVOICE_TRANSACTIONS WHERE INVOICE_ID = ?");
                 transactionsQuery.setLong(1, id);
 
                 ResultSet transactionsQueryResult = transactionsQuery.executeQuery();
@@ -50,7 +47,7 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
                 }
 
 
-                PreparedStatement paymentsQuery = db.prepareStatement("SELECT * FROM PAYMENTS WHERE INVOICE_OUTPUT_ID = ?");
+                PreparedStatement paymentsQuery = db.prepareStatement("SELECT * FROM PAYMENTS WHERE INVOICE_ID = ?");
                 paymentsQuery.setLong(1, id);
 
                 ResultSet paymentsQueryResult = paymentsQuery.executeQuery();
@@ -89,11 +86,11 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
     }
 
     @Override
-    public List<InvoiceOutput> getMany() throws DatabaseException {
-        List<InvoiceOutput> invoices = new ArrayList<>();
+    public List<Invoice> getMany() throws DatabaseException {
+        List<Invoice> invoices = new ArrayList<>();
 
         try (Connection db = Database.connectToDatabase()) {
-            PreparedStatement query = db.prepareStatement("SELECT * FROM INVOICE_OUTPUT");
+            PreparedStatement query = db.prepareStatement("SELECT * FROM INVOICE");
 
             ResultSet resultSet = query.executeQuery();
 
@@ -108,17 +105,16 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
     }
 
     @Override
-    public Long save(InvoiceOutput invoice) throws DatabaseException {
+    public Long save(Invoice invoice) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()) {
             db.setAutoCommit(false);
 
-            PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO INVOICE_OUTPUT(PARTNER_ID, INVOICE_DATE, DUE_DATE, DELIVERY_DATE, AMOUNT, OPERATOR_ID) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO INVOICE(PARTNER_ID, INVOICE_DATE, DUE_DATE, AMOUNT, OPERATOR_ID) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             insertDocumentQuery.setLong(1, invoice.getPartner().getId());
             insertDocumentQuery.setDate(2, Date.valueOf(invoice.getInvoiceDate()));
             insertDocumentQuery.setDate(3, Date.valueOf(invoice.getDueDate()));
-            insertDocumentQuery.setDate(4, Date.valueOf(invoice.getDeliveryDate()));
-            insertDocumentQuery.setBigDecimal(5, invoice.getTotalAmountWithVAT());
-            insertDocumentQuery.setLong(6, MainApplication.operator.getId());
+            insertDocumentQuery.setBigDecimal(4, invoice.getTotalAmountWithVAT());
+            insertDocumentQuery.setLong(5, MainApplication.operator.getId());
             insertDocumentQuery.executeUpdate();
 
             try (ResultSet generatedKeys = insertDocumentQuery.getGeneratedKeys()) {
@@ -127,7 +123,6 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
 
                     invoice.setId(documentId);
                     saveInvoiceOutputRows(db, documentId, invoice.getTransactions());
-                    saveIntoStorageJournal(db, documentId, invoice.getDeliveryDate(), invoice.getTransactions());
                 } else {
                     throw new SQLException("Neuspješno kreiranje dokumenta! ID nije dohvaćen.");
                 }
@@ -142,25 +137,23 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
         }
     }
 
-    public void save(Long documentId, InvoiceOutput invoice) throws DatabaseException {
+    public void save(Long documentId, Invoice invoice) throws DatabaseException {
         if (Optional.ofNullable(invoice.getId()).isEmpty())
             invoice.setId(documentId);
 
         try (Connection db = Database.connectToDatabase()) {
             db.setAutoCommit(false);
 
-            PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO INVOICE_OUTPUT(ID, PARTNER_ID, INVOICE_DATE, DUE_DATE, DELIVERY_DATE, AMOUNT, OPERATOR_ID) VALUES (?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement insertDocumentQuery = db.prepareStatement("INSERT INTO INVOICE(ID, PARTNER_ID, INVOICE_DATE, DUE_DATE, AMOUNT, OPERATOR_ID) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             insertDocumentQuery.setLong(1, invoice.getId());
             insertDocumentQuery.setLong(2, invoice.getPartner().getId());
             insertDocumentQuery.setDate(3, Date.valueOf(invoice.getInvoiceDate()));
             insertDocumentQuery.setDate(4, Date.valueOf(invoice.getDueDate()));
-            insertDocumentQuery.setDate(5, Date.valueOf(invoice.getDeliveryDate()));
-            insertDocumentQuery.setBigDecimal(6, invoice.getTotalAmountWithVAT());
-            insertDocumentQuery.setLong(7, MainApplication.operator.getId());
+            insertDocumentQuery.setBigDecimal(5, invoice.getTotalAmountWithVAT());
+            insertDocumentQuery.setLong(6, MainApplication.operator.getId());
             insertDocumentQuery.executeUpdate();
 
             saveInvoiceOutputRows(db, documentId, invoice.getTransactions());
-            saveIntoStorageJournal(db, documentId, invoice.getDeliveryDate(), invoice.getTransactions());
             createFinancialTransaction(db, invoice);
             savePayments(db, documentId, invoice.getPayments());
 
@@ -171,35 +164,29 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
     }
 
     private void createFinancialTransaction(Connection db, Invoice invoice) throws SQLException {
-        Optional<String> buyerAccount = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_BUYER);
-        Optional<String> vatAccount = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_VAT);
-        Optional<String> stockAccount = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_STOCK);
-        Optional<String> revenueAccount = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_REVENUE);
-        Optional<String> purchasePriceAccount = MainApplication.getAccountParameter(AccountParameters.INVOICE_OUTPUT_PURCHASE_PRICE);
-        String description = "Račun-otpremnica " + invoice.getId();
+        Optional<String> buyerAccount = MainApplication.getAccountParameter(AccountParameters.INVOICE_BUYER);
+        Optional<String> vatAccount = MainApplication.getAccountParameter(AccountParameters.INVOICE_VAT);
+        Optional<String> revenueAccount = MainApplication.getAccountParameter(AccountParameters.INVOICE_REVENUE);
+        String description = "Račun " + invoice.getId();
 
-        if (buyerAccount.isEmpty() || stockAccount.isEmpty() || vatAccount.isEmpty() || revenueAccount.isEmpty() || purchasePriceAccount.isEmpty())
+        if (buyerAccount.isEmpty() || vatAccount.isEmpty() || revenueAccount.isEmpty())
             throw new SQLException("Parametri dokumenta nisu ispravni!");
 
-        PreparedStatement createPartnerFinancialTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, OWES = ?, DESCRIPTION = ?, INVOICE_OUTPUT_ID = ?, PARTNER_ID = ?, DUE_DATE = ?");
+        PreparedStatement createPartnerFinancialTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, OWES = ?, DESCRIPTION = ?, INVOICE_ID = ?, PARTNER_ID = ?, DUE_DATE = ?");
         createPartnerFinancialTransactionQuery.setString(1, buyerAccount.get());
         createPartnerFinancialTransactionQuery.setDate(2, Date.valueOf(invoice.getInvoiceDate()));
         createPartnerFinancialTransactionQuery.setBigDecimal(3, invoice.getTotalAmountWithVAT());
-        createPartnerFinancialTransactionQuery.setString(4, "Račun-otpremnica " + invoice.getId());
+        createPartnerFinancialTransactionQuery.setString(4, description);
         createPartnerFinancialTransactionQuery.setLong(5, invoice.getId());
         createPartnerFinancialTransactionQuery.setLong(6, invoice.getPartner().getId());
         createPartnerFinancialTransactionQuery.setDate(7, Date.valueOf(invoice.getDueDate()));
         createPartnerFinancialTransactionQuery.executeUpdate();
 
-        PreparedStatement owesTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, OWES = ?, DESCRIPTION = ?, INVOICE_OUTPUT_ID = ?");
-        PreparedStatement claimsTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, CLAIMS = ?, DESCRIPTION = ?, INVOICE_OUTPUT_ID = ?");
-
-        BigDecimal purchasePrice = invoice.getTotalAssetPurchasePrice();
+        PreparedStatement owesTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, OWES = ?, DESCRIPTION = ?, INVOICE_ID = ?");
+        PreparedStatement claimsTransactionQuery = db.prepareStatement("INSERT INTO JOURNAL_FINANCIAL SET ACCOUNT_CODE = ?, DATE = ?, CLAIMS = ?, DESCRIPTION = ?, INVOICE_ID = ?");
         BigDecimal revenue = invoice.getTotalBasisAmount();
 
         executeNonAnalyticalQuery(claimsTransactionQuery, vatAccount.get(), invoice.getInvoiceDate(), invoice.getTotalTaxAmount(), description, invoice.getId());
-        executeNonAnalyticalQuery(claimsTransactionQuery, stockAccount.get(), invoice.getInvoiceDate(), purchasePrice, description, invoice.getId());
-        executeNonAnalyticalQuery(owesTransactionQuery, purchasePriceAccount.get(), invoice.getInvoiceDate(), purchasePrice, description, invoice.getId());
         executeNonAnalyticalQuery(claimsTransactionQuery, revenueAccount.get(), invoice.getInvoiceDate(), revenue, description, invoice.getId());
     }
 
@@ -212,28 +199,11 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
         statement.executeUpdate();
     }
 
-    private void saveIntoStorageJournal(Connection db, Long documentId, LocalDate deliveryDate, List<ArticleTransaction> transactions) throws SQLException {
-        int affectedRows = 0;
-
-        for (ArticleTransaction transaction : transactions) {
-            PreparedStatement insertQuery = db.prepareStatement("INSERT INTO JOURNAL_STORAGE(ARTICLE_ID, INVOICE_OUTPUT_ID, OUTPUT, CLAIMS, DATE) VALUES (?, ?, ?, ?, ?)");
-            insertQuery.setLong(1, transaction.getArticle().getId());
-            insertQuery.setLong(2, documentId);
-            insertQuery.setBigDecimal(3, transaction.getQuantity());
-            insertQuery.setBigDecimal(4, transaction.getTotal());
-            insertQuery.setDate(5, Date.valueOf(deliveryDate));
-            affectedRows += insertQuery.executeUpdate();
-        }
-
-        if (affectedRows != transactions.size())
-            throw new SQLException("Zapisi nisu uspješno uneseni u bazu podataka!");
-    }
-
     private void saveInvoiceOutputRows(Connection db, Long documentId, List<ArticleTransaction> transactions) throws SQLException {
         int affectedRows = 0;
 
         for (ArticleTransaction transaction : transactions) {
-            PreparedStatement insertQuery = db.prepareStatement("INSERT INTO INVOICE_OUTPUT_TRANSACTIONS(INVOICE_OUTPUT_ID, ARTICLE_ID, QUANTITY, DISCOUNT, PRICE) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement insertQuery = db.prepareStatement("INSERT INTO INVOICE_TRANSACTIONS(INVOICE_ID, ARTICLE_ID, QUANTITY, DISCOUNT, PRICE) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             insertQuery.setLong(1, documentId);
             insertQuery.setLong(2, transaction.getArticle().getId());
             insertQuery.setBigDecimal(3, transaction.getQuantity());
@@ -255,7 +225,7 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
         int affectedRows = 0;
 
         for (InvoicePayment payment : payments) {
-            PreparedStatement insertQuery = db.prepareStatement("INSERT INTO PAYMENTS(INVOICE_OUTPUT_ID, DATE, AMOUNT) VALUES (?, ?, ?)");
+            PreparedStatement insertQuery = db.prepareStatement("INSERT INTO PAYMENTS(INVOICE_ID, DATE, AMOUNT) VALUES (?, ?, ?)");
             insertQuery.setLong(1, documentId);
             insertQuery.setDate(2, Date.valueOf(payment.getDate()));
             insertQuery.setBigDecimal(3, payment.getAmount());
@@ -267,21 +237,19 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
     }
 
     @Override
-    public void update(Long id, InvoiceOutput invoice) throws DatabaseException {
+    public void update(Long id, Invoice invoice) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()) {
             db.setAutoCommit(false);
 
-            PreparedStatement updateDocumentQuery = db.prepareStatement("UPDATE INVOICE_OUTPUT SET INVOICE_DATE = ?, DUE_DATE = ?, DELIVERY_DATE = ?, AMOUNT = ?, PARTNER_ID = ? WHERE ID = ?");
+            PreparedStatement updateDocumentQuery = db.prepareStatement("UPDATE INVOICE SET INVOICE_DATE = ?, DUE_DATE = ?, AMOUNT = ?, PARTNER_ID = ? WHERE ID = ?");
             updateDocumentQuery.setDate(1, Date.valueOf(invoice.getInvoiceDate()));
             updateDocumentQuery.setDate(2, Date.valueOf(invoice.getDueDate()));
-            updateDocumentQuery.setDate(3, Date.valueOf(invoice.getDeliveryDate()));
-            updateDocumentQuery.setBigDecimal(4, invoice.getTotalAmountWithVAT());
-            updateDocumentQuery.setLong(5, invoice.getPartner().getId());
-            updateDocumentQuery.setLong(6, id);
+            updateDocumentQuery.setBigDecimal(3, invoice.getTotalAmountWithVAT());
+            updateDocumentQuery.setLong(4, invoice.getPartner().getId());
+            updateDocumentQuery.setLong(5, id);
             updateDocumentQuery.executeUpdate();
 
             updateFinancialTransaction(db, invoice);
-            updateStorageJournal(db, id, invoice.getDeliveryDate(), invoice.getTransactions());
             updateInvoiceOutputRows(db, id, invoice.getTransactions());
             updatePayments(db, id, invoice.getPayments());
 
@@ -292,7 +260,7 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
     }
 
     private void updateFinancialTransaction(Connection db, Invoice invoice) throws SQLException {
-        PreparedStatement deleteOldFinancialTransactionsQuery = db.prepareStatement("DELETE FROM JOURNAL_FINANCIAL WHERE INVOICE_OUTPUT_ID = ?");
+        PreparedStatement deleteOldFinancialTransactionsQuery = db.prepareStatement("DELETE FROM JOURNAL_FINANCIAL WHERE INVOICE_ID = ?");
         deleteOldFinancialTransactionsQuery.setLong(1, invoice.getId());
         deleteOldFinancialTransactionsQuery.executeUpdate();
 
@@ -300,23 +268,15 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
     }
 
     private void updateInvoiceOutputRows(Connection db, Long documentId, List<ArticleTransaction> transactions) throws SQLException {
-        PreparedStatement deleteOldFinancialTransactionsQuery = db.prepareStatement("DELETE FROM INVOICE_OUTPUT_TRANSACTIONS WHERE INVOICE_OUTPUT_ID = ?");
+        PreparedStatement deleteOldFinancialTransactionsQuery = db.prepareStatement("DELETE FROM INVOICE_TRANSACTIONS WHERE INVOICE_ID = ?");
         deleteOldFinancialTransactionsQuery.setLong(1, documentId);
         deleteOldFinancialTransactionsQuery.executeUpdate();
 
         saveInvoiceOutputRows(db, documentId, transactions);
     }
 
-    private void updateStorageJournal(Connection db, Long documentId, LocalDate deliveryDate, List<ArticleTransaction> transactions) throws SQLException {
-        PreparedStatement deleteOldFinancialTransactionsQuery = db.prepareStatement("DELETE FROM JOURNAL_STORAGE WHERE INVOICE_OUTPUT_ID = ?");
-        deleteOldFinancialTransactionsQuery.setLong(1, documentId);
-        deleteOldFinancialTransactionsQuery.executeUpdate();
-
-        saveIntoStorageJournal(db, documentId, deliveryDate, transactions);
-    }
-
     private void updatePayments(Connection db, Long id, List<InvoicePayment> payments) throws SQLException {
-        PreparedStatement deleteOldFinancialTransactionsQuery = db.prepareStatement("DELETE FROM PAYMENTS WHERE INVOICE_OUTPUT_ID = ?");
+        PreparedStatement deleteOldFinancialTransactionsQuery = db.prepareStatement("DELETE FROM PAYMENTS WHERE INVOICE_ID = ?");
         deleteOldFinancialTransactionsQuery.setLong(1, id);
         deleteOldFinancialTransactionsQuery.executeUpdate();
 
@@ -324,11 +284,11 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
     }
 
     @Override
-    public void delete(InvoiceOutput invoice) throws DatabaseException {
+    public void delete(Invoice invoice) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()){
             db.setAutoCommit(false);
 
-            PreparedStatement deleteQuery = db.prepareStatement("DELETE FROM INVOICE_OUTPUT WHERE ID = ?");
+            PreparedStatement deleteQuery = db.prepareStatement("DELETE FROM INVOICE WHERE ID = ?");
             deleteQuery.setLong(1, invoice.getId());
             deleteQuery.executeUpdate();
 
@@ -339,13 +299,12 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
     }
 
     @Override
-    public InvoiceOutput mapResultSet(ResultSet resultSet) throws SQLException, DatabaseException {
-        InvoiceOutputBuilder builder = new InvoiceOutputBuilder();
+    public Invoice mapResultSet(ResultSet resultSet) throws SQLException, DatabaseException {
+        InvoiceBuilder builder = new InvoiceBuilder();
 
         builder.setId(resultSet.getLong("ID"));
         builder.setInvoiceDate(resultSet.getDate("INVOICE_DATE").toLocalDate());
         builder.setDueDate(resultSet.getDate("DUE_DATE").toLocalDate());
-        builder.setDeliveryDate(resultSet.getDate("DELIVERY_DATE").toLocalDate());
         builder.setAmount(resultSet.getBigDecimal("AMOUNT"));
 
         Optional<Business> partner = new BusinessRepository().get(resultSet.getLong("PARTNER_ID"));
@@ -358,7 +317,7 @@ public class InvoiceOutputRepository implements Dao<InvoiceOutput> {
         List<Invoice> invoices = new ArrayList<>();
 
         try (Connection db = Database.connectToDatabase()) {
-            PreparedStatement query = db.prepareStatement("SELECT ID, PARTNER_ID, INVOICE_DATE, DUE_DATE, DELIVERY_DATE, (AMOUNT-IFNULL((SELECT IFNULL(SUM(AMOUNT), 0) FROM PAYMENTS WHERE INVOICE_OUTPUT_ID = INVOICE_OUTPUT.ID GROUP BY INVOICE_OUTPUT_ID), 0)) as \"AMOUNT\" FROM INVOICE_OUTPUT WHERE DUE_DATE <= CURRENT_DATE");
+            PreparedStatement query = db.prepareStatement("SELECT ID, PARTNER_ID, INVOICE_DATE, DUE_DATE, (AMOUNT-IFNULL((SELECT IFNULL(SUM(AMOUNT), 0) FROM PAYMENTS WHERE INVOICE_ID = INVOICE.ID GROUP BY INVOICE_ID), 0)) as \"AMOUNT\" FROM INVOICE WHERE DUE_DATE <= CURRENT_DATE");
             ResultSet resultSet = query.executeQuery();
 
             while (resultSet.next()){

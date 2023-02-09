@@ -7,11 +7,12 @@ package hr.java.projekt.threads;
 import hr.java.projekt.app.MainApplication;
 import hr.java.projekt.database.BusinessRepository;
 import hr.java.projekt.database.InvoiceOutputRepository;
+import hr.java.projekt.database.InvoiceRepository;
 import hr.java.projekt.database.OperatorRepository;
 import hr.java.projekt.exceptions.DatabaseException;
 import hr.java.projekt.model.business.Business;
 import hr.java.projekt.model.invoices.Invoice;
-import hr.java.projekt.model.invoices.InvoiceOutput;
+import hr.java.projekt.model.invoices.InvoiceByDueDateComparator;
 import hr.java.projekt.model.operator.Operator;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -21,6 +22,7 @@ import javafx.scene.control.TableView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeScreenThread implements Runnable {
@@ -44,6 +46,7 @@ public class HomeScreenThread implements Runnable {
     @Override
     public void run() {
         BusinessRepository partnersRepository = new BusinessRepository();
+        InvoiceRepository invoiceRepository = new InvoiceRepository();
         InvoiceOutputRepository invoiceOutputRepository = new InvoiceOutputRepository();
         OperatorRepository operatorRepository = new OperatorRepository();
 
@@ -82,7 +85,12 @@ public class HomeScreenThread implements Runnable {
             }
 
             try {
-                List<InvoiceOutput> dueInvoices = invoiceOutputRepository.getDueInvoices();
+                List<Invoice> dueInvoices = new ArrayList<>();
+
+                dueInvoices.addAll(invoiceRepository.getDueInvoices());
+                dueInvoices.addAll(invoiceOutputRepository.getDueInvoices());
+
+                dueInvoices.sort(new InvoiceByDueDateComparator());
 
                 Platform.runLater(() -> {
                     dueInvoicesTable.setItems(FXCollections.observableArrayList(dueInvoices));

@@ -10,6 +10,8 @@ import hr.java.projekt.model.operator.Operator;
 import hr.java.projekt.model.operator.Role;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -139,16 +141,26 @@ public class OperatorRepository implements Dao<Operator> {
 
     public Double getOperatorTurnover(Operator operator) throws DatabaseException {
         try (Connection db = Database.connectToDatabase()) {
-            PreparedStatement query = db.prepareStatement("SELECT (IFNULL(SUM(AMOUNT), 0)) AS \"SUM\" FROM INVOICE_OUTPUT WHERE OPERATOR_ID = ? AND (INVOICE_DATE BETWEEN ? AND ?) GROUP BY OPERATOR_ID");
-            query.setLong(1, operator.getId());
+            PreparedStatement query1 = db.prepareStatement("SELECT (IFNULL(SUM(AMOUNT), 0)) AS \"SUM\" FROM INVOICE_OUTPUT WHERE OPERATOR_ID = ? AND (INVOICE_DATE BETWEEN ? AND ?) GROUP BY OPERATOR_ID");
+            query1.setLong(1, operator.getId());
             LocalDate today = LocalDate.now();
-            query.setDate(2, Date.valueOf(today.withDayOfMonth(1)));
-            query.setDate(3, Date.valueOf(today.with(lastDayOfMonth())));
+            query1.setDate(2, Date.valueOf(today.withDayOfMonth(1)));
+            query1.setDate(3, Date.valueOf(today.with(lastDayOfMonth())));
 
-            ResultSet resultSet = query.executeQuery();
+            PreparedStatement query2 = db.prepareStatement("SELECT (IFNULL(SUM(AMOUNT), 0)) AS \"SUM\" FROM INVOICE WHERE OPERATOR_ID = ? AND (INVOICE_DATE BETWEEN ? AND ?) GROUP BY OPERATOR_ID");
+            query2.setLong(1, operator.getId());
+            query2.setDate(2, Date.valueOf(today.withDayOfMonth(1)));
+            query2.setDate(3, Date.valueOf(today.with(lastDayOfMonth())));
 
-            if (resultSet.next()) return resultSet.getDouble("SUM");
-            else return (double) 0;
+            ResultSet resultSet1 = query1.executeQuery();
+            ResultSet resultSet2 = query2.executeQuery();
+
+            double result = (double)0;
+
+            if (resultSet1.next()) result += resultSet1.getDouble("SUM");
+            if (resultSet2.next()) result += resultSet2.getDouble("SUM");
+
+            return result;
         } catch (SQLException | IOException e) {
             throw new DatabaseException("Došlo je do pogreške kod brisanja operatera", e);
         }

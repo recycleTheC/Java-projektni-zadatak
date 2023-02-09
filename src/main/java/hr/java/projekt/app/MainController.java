@@ -3,6 +3,7 @@ package hr.java.projekt.app;
 import hr.java.projekt.controller.*;
 import hr.java.projekt.model.operator.Role;
 import hr.java.projekt.threads.LastHistoryReaderThread;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -100,5 +101,9 @@ public class MainController {
 
     public void showOperatorsEditorView() throws IOException {
         showView("Operateri", OperatorsEditorController.class.getResource("operators-editor.fxml"));
+    }
+
+    public void showInvoiceEditorView() throws IOException {
+        showView("Račun", StockViewController.class.getResource("invoice-editor.fxml"));
     }
 }
